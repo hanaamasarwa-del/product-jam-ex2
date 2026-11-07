@@ -1,0 +1,197 @@
+.page {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block-end: var(--space-8);
+}
+
+.intro {
+  max-inline-size: 42rem;
+  color: var(--color-text-muted);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.section {
+  margin-block-end: var(--space-8);
+  scroll-margin-block-start: var(--space-4);
+}
+
+.sectionTitle {
+  margin-block-end: var(--space-1);
+  font-size: var(--text-xl);
+}
+
+.sectionNote {
+  margin-block-end: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* A row of examples that wraps on narrow screens. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-inline-size: 22rem;
+}
+
+/* Side-by-side English and Hebrew, for the HTML reference. */
+.bilingual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-6);
+}
+
+.sample {
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.sampleLabel {
+  margin-block-end: var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-3);
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+.swatchChip {
+  inline-size: var(--space-8);
+  block-size: var(--space-8);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-end: var(--space-8);
+  font-size: var(--text-sm);
+}
+
+/* --- The token reference ------------------------------------------------ */
+
+.subTitle {
+  margin-block-start: var(--space-8);
+  margin-block-end: var(--space-1);
+  font-size: var(--text-base);
+  font-weight: 500;
+}
+
+.subNote {
+  margin-block-end: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.swatchText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.tokenValue {
+  color: var(--color-text-disabled);
+}
+
+/* A list of scale steps - spacing, type sizes, fonts. */
+.scale {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.scaleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+/* The sample sits at the start of the row and gets a fixed column, so the
+   token names line up under each other however long the sample is. */
+.sampleText {
+  min-inline-size: 12rem;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+}
+
+.bar {
+  flex-shrink: 0;
+  block-size: var(--space-4);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent);
+}
+
+.radiusItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+.radiusBox {
+  display: block;
+  inline-size: 4rem;
+  block-size: 4rem;
+  border: var(--border-width) solid var(--color-border-strong);
+  background-color: var(--color-surface);
+}
+
+.shadowBox {
+  display: block;
+  inline-size: 4rem;
+  block-size: 4rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}

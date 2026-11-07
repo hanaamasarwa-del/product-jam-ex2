@@ -1,0 +1,31 @@
+.positioner {
+  z-index: var(--z-overlay);
+}
+
+.popup {
+  max-inline-size: 16rem;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  box-shadow: var(--shadow-md);
+
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    scale var(--duration-fast) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  scale: 0.95;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup {
+    transition-duration: 1ms;
+  }
+}

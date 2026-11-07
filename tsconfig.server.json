@@ -1,0 +1,31 @@
+{
+  // Type settings for everything in server/ - the code that runs on Cloudflare.
+  //
+  // Note what is MISSING from "lib" below: there is no "DOM". That is on purpose.
+  // There is no browser on the server, so `document` and `window` do not exist.
+  // If you try to use them here, TypeScript will stop you.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.server.tsbuildinfo",
+
+    "types": ["./worker-configuration.d.ts"],
+    "paths": {
+      "@shared/*": ["./shared/*"]
+    }
+  },
+  "include": ["server", "shared", "worker-configuration.d.ts"]
+}

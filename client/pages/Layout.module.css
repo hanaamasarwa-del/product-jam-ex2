@@ -1,0 +1,76 @@
+/* Header on top, footer at the bottom of the screen even on a short page. */
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+}
+
+.content {
+  flex: 1;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-8);
+  background-color: var(--color-header-bg);
+}
+
+.header a {
+  color: var(--color-header-text);
+  text-decoration: none;
+}
+
+.header a:hover {
+  text-decoration: underline;
+}
+
+.appName {
+  font-family: var(--font-titles);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.footer {
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.footer p + p {
+  margin-block-start: var(--space-2);
+}
+
+/* A button that looks like the links around it. */
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.linkButton:hover {
+  text-decoration: none;
+}
+
+.header a:focus-visible,
+.linkButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* The accent would vanish against the dark header bar. */
+.header a:focus-visible {
+  outline-color: var(--color-header-text);
+}

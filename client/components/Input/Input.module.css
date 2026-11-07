@@ -1,0 +1,49 @@
+.input {
+  inline-size: 100%;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.sm {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  font-size: var(--text-sm);
+}
+.md {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  font-size: var(--text-base);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: 0;
+  border-color: var(--color-accent);
+}
+
+/* Base UI sets this when the surrounding <Field> is invalid. */
+.input[data-invalid],
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.input:disabled,
+.input[data-disabled] {
+  background-color: var(--color-bg);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}

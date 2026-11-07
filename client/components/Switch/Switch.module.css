@@ -1,0 +1,68 @@
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.track {
+  /* Control sizes, not spacing steps - so they live here, not in tokens.css. */
+  --track-width: 2.5rem;
+  --track-height: 1.5rem;
+  --thumb-size: 1rem;
+
+  position: relative;
+  flex-shrink: 0;
+  inline-size: var(--track-width);
+  block-size: var(--track-height);
+  padding: 0;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-hover);
+  cursor: pointer;
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+
+.track:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.track[data-checked] {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.track[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.thumb {
+  display: block;
+  inline-size: var(--thumb-size);
+  block-size: var(--thumb-size);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  box-shadow: 0 1px 2px rgb(27 28 31 / 0.25);
+  /*
+    `inset-inline-start` is the RTL-safe way to say "from the leading edge".
+    In Hebrew the switch slides right-to-left automatically.
+  */
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 3px;
+  translate: 0 -50%;
+  transition: inset-inline-start var(--duration-base) var(--ease-out);
+}
+
+.track[data-checked] .thumb {
+  inset-inline-start: calc(100% - var(--thumb-size) - 3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .thumb {
+    transition-duration: 1ms;
+  }
+}

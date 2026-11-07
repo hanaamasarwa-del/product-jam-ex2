@@ -1,0 +1,74 @@
+.page {
+  max-inline-size: var(--content-width);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block-end: var(--space-6);
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-8);
+}
+
+.empty {
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Pushes the delete button to the far edge, whichever edge that is. */
+.item > :last-child {
+  margin-inline-start: auto;
+}
+
+.thumb {
+  inline-size: 4rem;
+  block-size: 4rem;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.itemText {
+  min-inline-size: 0;
+}
+
+.itemTitle {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.itemTitle:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.itemDate {
+  margin-block-start: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

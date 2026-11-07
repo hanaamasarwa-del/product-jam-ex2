@@ -1,0 +1,73 @@
+.viewport {
+  position: fixed;
+  /* Bottom of the screen, on the side the language starts from. */
+  inset-block-end: var(--space-4);
+  inset-inline-start: var(--space-4);
+  z-index: var(--z-toast);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: min(22rem, calc(100vw - var(--space-8)));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    translate var(--duration-base) var(--ease-out);
+}
+
+.toast[data-starting-style],
+.toast[data-ending-style] {
+  opacity: 0;
+  translate: 0 var(--space-4);
+}
+
+.error {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-subtle);
+}
+
+.success {
+  border-color: var(--color-success);
+  background-color: var(--color-success-subtle);
+}
+
+.content {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.title {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.title:empty {
+  display: none;
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.description:empty {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition-duration: 1ms;
+  }
+}

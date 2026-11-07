@@ -1,0 +1,126 @@
+/*
+  DESIGN TOKENS
+  =============
+  This is THE file to edit to change how the app looks.
+
+  Every component reads its colours, spacing and type from the variables
+  below and from nothing else. There are no hard-coded colours anywhere in
+  client/components/ - that is a rule, not a coincidence. So changing a value
+  here changes it everywhere, consistently.
+
+  Start with the eight colours at the top. Everything under them - hover
+  shades, disabled text, the dim layer behind a dialog - is worked out from
+  those eight by the browser, with color-mix(). Change --color-accent and the
+  buttons, links, focus rings and switches all move with it.
+*/
+
+:root {
+  /* Tell the browser this app is light-themed, so it does not dark-mode our
+     form controls and scrollbars on its own. */
+  color-scheme: light;
+
+  /* === COLOUR - the eight you change ==================================== */
+
+  --color-bg: #f5f5f5; /* the page behind everything */
+  --color-surface: #ffffff; /* cards, inputs, menus - things ON the page */
+  --color-text: #2b2d42;
+  --color-text-muted: #5a5e6b; /* captions, placeholders, secondary labels */
+  --color-border: #bfc6d2;
+  --color-accent: #535bf2; /* buttons, links, focus rings. Change this first */
+  --color-danger: #c0362c; /* destructive actions and error messages */
+  --color-success: #1f7a4d; /* confirmations */
+
+  /* === COLOUR - worked out from the eight above ========================= */
+  /*
+    color-mix() blends two colours. "in oklab" tells the browser to blend
+    the way the eye sees it, so a grey stays grey instead of turning muddy.
+    You should not need to touch anything below.
+  */
+
+  --color-surface-hover: color-mix(in oklab, var(--color-surface), var(--color-text) 6%);
+  --color-surface-active: color-mix(in oklab, var(--color-surface), var(--color-text) 12%);
+
+  --color-border-strong: color-mix(in oklab, var(--color-border), var(--color-text) 18%);
+
+  --color-text-disabled: color-mix(in oklab, var(--color-text) 38%, var(--color-bg));
+  --color-text-on-accent: #ffffff;
+
+  --color-accent-hover: color-mix(in oklab, var(--color-accent), #000 15%);
+  --color-accent-active: color-mix(in oklab, var(--color-accent), #000 28%);
+
+  --color-danger-hover: color-mix(in oklab, var(--color-danger), #000 18%);
+  --color-danger-subtle: color-mix(in oklab, var(--color-danger), var(--color-surface) 92%);
+
+  --color-success-subtle: color-mix(in oklab, var(--color-success), var(--color-surface) 92%);
+
+  /* The bar across the top of every page: the text colour, inverted. */
+  --color-header-bg: var(--color-text);
+  --color-header-text: var(--color-bg);
+
+  /* The dim layer behind a dialog. */
+  --color-overlay: color-mix(in srgb, var(--color-text) 45%, transparent);
+
+  /* === SPACE ============================================================ */
+  /* A scale, not arbitrary numbers. Pick the nearest step. */
+  --space-1: 0.25rem; /* 4px  */
+  --space-2: 0.5rem; /*  8px  */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /*    16px */
+  --space-6: 1.5rem; /*  24px */
+  --space-8: 2rem; /*    32px */
+
+  /* === SHAPE ============================================================ */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  --border-width: 1px;
+
+  /* The ring drawn around whatever the keyboard is focused on. Never remove
+     it - it is how keyboard and screen-reader users know where they are. */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* === TYPE ============================================================= */
+  /*
+    The fallbacks matter more than the first name. If the web font fails to
+    load - a slow network, a blocked CDN - these are what actually draw
+    Hebrew and Arabic. Do not remove them.
+  */
+  --font-body:
+    system-ui, -apple-system, "Segoe UI", "Noto Sans Hebrew", "Noto Sans Arabic", "Arial Hebrew",
+    "Geeza Pro", sans-serif;
+  /* Headings. Rubik is loaded from Google Fonts in client/index.html - if you
+     change it here, change that link too. */
+  --font-titles: "Rubik", var(--font-body);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+
+  /* === ELEVATION ======================================================== */
+  --shadow-md: 0 2px 4px rgb(27 28 31 / 0.06), 0 4px 12px rgb(27 28 31 / 0.08);
+  --shadow-lg: 0 4px 8px rgb(27 28 31 / 0.06), 0 12px 32px rgb(27 28 31 / 0.12);
+
+  /* === LAYERS =========================================================== */
+  /* Named so you never have to guess whether 9999 is enough. */
+  --z-dropdown: 100;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* === MOTION =========================================================== */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* === LAYOUT =========================================================== */
+  --content-width: 60rem;
+  --content-width-narrow: 34rem;
+}

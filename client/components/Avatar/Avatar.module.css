@@ -1,0 +1,42 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.sm {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  font-size: var(--text-xs);
+}
+.md {
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  font-size: var(--text-sm);
+}
+.lg {
+  inline-size: 4rem;
+  block-size: 4rem;
+  font-size: var(--text-xl);
+}
+
+.image {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+}

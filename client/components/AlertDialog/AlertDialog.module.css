@@ -1,0 +1,72 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background-color: var(--color-overlay);
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.popup {
+  position: fixed;
+  z-index: var(--z-modal);
+
+  /*
+    Centred with `inset: 0` + `margin: auto` rather than the usual
+    "inset-inline-start: 50%; translate: -50%".
+    That trick breaks in RTL: `inset-inline-start` measures from the RIGHT
+    edge in Hebrew, so the dialog ends up off the side of the screen. This
+    way is pure geometry and behaves the same in both directions.
+  */
+  inset: 0;
+  margin: auto;
+  block-size: fit-content;
+
+  inline-size: calc(100vw - var(--space-8));
+  max-inline-size: 26rem;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    scale var(--duration-base) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  scale: 0.97;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-titles);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.description {
+  margin-block-start: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-block-start: var(--space-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .popup {
+    transition-duration: 1ms;
+  }
+}

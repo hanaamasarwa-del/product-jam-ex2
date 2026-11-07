@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // Your app's name. It becomes part of the URL: <name>.<your-subdomain>.workers.dev
+  // Change this to your team's app name. It must match the Worker name in the
+  // Cloudflare dashboard exactly, or the automatic deploy fails.
+  "name": "starter-kit",
+
+  // Which version of the Cloudflare runtime to use. Leave this alone unless you
+  // know why you're changing it.
+  "compatibility_date": "2026-09-21",
+
+  // Lets Node-style imports work. @supabase/supabase-js needs this.
+  "compatibility_flags": ["nodejs_compat"],
+
+  // The server entry point. This file runs on Cloudflare, NOT in the browser.
+  "main": "./server/index.ts",
+
+  "assets": {
+    // Note: there is deliberately no "directory" here. The Vite plugin fills it
+    // in when it builds. This also means plain `npx wrangler deploy` will refuse
+    // to run - that is on purpose, because it would bundle the server a second,
+    // different way. Cloudflare deploys with `npm run deploy` instead.
+
+    // Any URL that isn't a real file and isn't /api/* serves index.html, so that
+    // React Router can handle it. This is what makes deep links work.
+    "not_found_handling": "single-page-application",
+
+    // Anything matching these patterns goes to the Worker FIRST, instead of being
+    // treated as a missing static file.
+    "run_worker_first": ["/api/*"],
+  },
+
+  "observability": { "enabled": true },
+}

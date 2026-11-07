@@ -1,0 +1,15 @@
+{
+  "name": "Product Jam App",
+  "short_name": "Jam App",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "display": "standalone",
+  "theme_color": "#2b2d42",
+  "background_color": "#f5f5f5"
+}

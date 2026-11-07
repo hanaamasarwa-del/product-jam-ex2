@@ -1,0 +1,5 @@
+.logos {
+  display: flex;
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+}

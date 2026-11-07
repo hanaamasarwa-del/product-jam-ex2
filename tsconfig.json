@@ -1,0 +1,12 @@
+{
+  // This file just points at the three real configs. You almost never edit it.
+  //   tsconfig.client.json  - browser code (knows about the DOM)
+  //   tsconfig.server.json  - Cloudflare Workers code (no DOM!)
+  //   tsconfig.node.json    - the config files in this folder
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.client.json" },
+    { "path": "./tsconfig.server.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}

@@ -1,0 +1,157 @@
+@import "./reset.css";
+@import "./tokens.css";
+
+/*
+  App-wide styles. Keep this file small.
+
+  Anything specific to one component belongs in that component's own
+  .module.css file, next to its .tsx file.
+
+  RTL NOTE: never write `left` or `right` here. Use the logical properties
+  instead - `margin-inline-start`, `padding-inline`, `inset-inline-end`,
+  `text-align: start` - so the layout mirrors correctly in Hebrew and Arabic.
+
+  PLAIN HTML vs COMPONENTS: the spacing and form rules below only apply to
+  elements WITHOUT a class - `:not([class])`. Plain HTML you write in a page
+  (a paragraph, a list, a bare <input>) gets a sensible default look, while
+  anything with a class - every component in client/components/, and any
+  element you style in a .module.css - is left entirely to its own CSS.
+  To see all of it at once, open /demos/elements.
+*/
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  /* Native checkboxes, radios and sliders pick up the accent colour too. */
+  accent-color: var(--color-accent);
+}
+
+main {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+/* === TEXT ================================================================ */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-titles);
+  font-weight: 500;
+  font-optical-sizing: auto;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-3xl);
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+h4 {
+  font-size: var(--text-lg);
+}
+
+h5 {
+  font-size: var(--text-base);
+}
+
+h6 {
+  font-size: var(--text-sm);
+}
+
+:where(h1, h2, h3, h4, h5, h6):not([class]) {
+  margin-block: var(--space-4) var(--space-2);
+}
+
+:where(p, blockquote, table, figure, dl):not([class]) {
+  margin-block: var(--space-4);
+}
+
+:where(ul, ol):not([class]) {
+  margin-block-start: var(--space-2);
+}
+
+:where(li):not([class]) {
+  margin-block-start: var(--space-1);
+}
+
+:where(blockquote):not([class]) {
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--color-border);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* === TABLES ============================================================== */
+
+:where(table):not([class]) {
+  border-collapse: collapse;
+}
+
+:where(th, td):not([class]) {
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  text-align: start;
+}
+
+/* === FORMS =============================================================== */
+/*
+  Only bare form elements. The components (Button, Input, Checkbox...) all
+  have a class, so they are not affected - and Base UI's Checkbox and Switch
+  are <button>s underneath, which is exactly why this has to be so narrow.
+*/
+
+:where(input, button, textarea, select):not([class]) {
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+:where(input[type="checkbox"], input[type="radio"], input[type="range"]):not([class]) {
+  padding: 0;
+}
+
+:where(input, textarea, select):not([class])[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+:where(fieldset):not([class]) {
+  margin-block-start: var(--space-6);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* Some people get motion sick. Respect the setting they chose in their OS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

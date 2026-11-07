@@ -1,0 +1,41 @@
+.positioner {
+  z-index: var(--z-dropdown);
+}
+
+.popup {
+  max-inline-size: 20rem;
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  box-shadow: var(--shadow-lg);
+
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    scale var(--duration-fast) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  scale: 0.97;
+}
+
+.popup:focus-visible {
+  outline: none;
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-titles);
+  font-size: var(--text-base);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup {
+    transition-duration: 1ms;
+  }
+}

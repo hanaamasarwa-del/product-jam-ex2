@@ -1,0 +1,16 @@
+.separator {
+  background-color: var(--color-border);
+  border: none;
+}
+
+.separator[data-orientation="horizontal"] {
+  block-size: var(--border-width);
+  inline-size: 100%;
+  margin-block: var(--space-4);
+}
+
+.separator[data-orientation="vertical"] {
+  inline-size: var(--border-width);
+  align-self: stretch;
+  margin-inline: var(--space-3);
+}

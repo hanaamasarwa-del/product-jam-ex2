@@ -1,0 +1,59 @@
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.box {
+  /* A control size, not a spacing step - so it lives here, not in tokens.css. */
+  --box-size: 1.25rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--box-size);
+  block-size: var(--box-size);
+  padding: 0;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text-on-accent);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.box:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Base UI sets these data attributes. Style states with them, never by
+   toggling classes from JavaScript. */
+.box[data-checked],
+.box[data-indeterminate] {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.box[data-disabled] {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 0.75rem;
+  block-size: 0.625rem;
+}
+
+.label {
+  font-size: var(--text-base);
+  color: var(--color-text);
+}

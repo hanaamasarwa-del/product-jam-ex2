@@ -1,0 +1,56 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.circle {
+  /* Matches the checkbox box, so the two line up in a form. */
+  --circle-size: 1.25rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--circle-size);
+  block-size: var(--circle-size);
+  padding: 0;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.circle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.circle[data-checked] {
+  border-color: var(--color-accent);
+}
+
+.circle[data-disabled] {
+  background-color: var(--color-surface-hover);
+  cursor: not-allowed;
+}
+
+.dot {
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+}
+
+.label {
+  font-size: var(--text-base);
+  color: var(--color-text);
+}
