@@ -1,3 +1,1042 @@
-.title {
-  font-size: var(--text-3xl);
+/*
+ * The Dentify design, made to work from a 320px phone to a very wide screen.
+ *
+ * HOW IT IS BUILT
+ *   - Phone (up to 639px) comes first. It is the Figma frame (440px wide), kept
+ *     faithful at 440px and scaled smoothly down to 320px.
+ *   - Then three wider layouts, each its own arrangement, not a stretched phone:
+ *       Tablet 640px, Desktop 1024px, Large desktop 1440px.
+ *     The Figma only shows a phone, so these are proposals for the designer to
+ *     approve. Each choice is marked DESIGNER DECISION.
+ *   - Sizes are fluid. The player card, the shelf cards and the feature cards
+ *     are CONTAINERS: everything inside is sized in `cqw` (1% of the card's own
+ *     width), so a card looks the same at any size and nothing is placed by
+ *     pixel. Spacing uses clamp() so it shrinks with the screen.
+ *
+ * Numbers come from the Figma export and a PNG of the frame at 2x. A
+ * `/ 390` or `/ 186.24` comment shows the Figma size a `cqw` value was worked
+ * out from. ESTIMATED means the export did not record it and it was matched by
+ * eye to the PNG.
+ */
+
+.page {
+  /* --- Colours: the six in the design --------------------------------- */
+  --blue: #7b93b9; /* rgb(123, 147, 185): the page, and text on light cards */
+  --yellow: #fff999; /* rgb(255, 249, 153): headings and logo */
+  --yellow-soft: #fbf59c; /* rgb(251, 245, 156): the intro and shelf title */
+  --light-blue: #b8d2ff; /* rgb(184, 210, 255): feature cards, greeting */
+  --white: #ffffff;
+  --black: #000000;
+
+  /*
+   * CONTRAST. These pairs are the Figma's own, and they are kept so the design
+   * is unchanged. Several fail WCAG (the ratio is noted). To fix one, change its
+   * variable here: nothing else needs to move. DESIGNER DECISION.
+   */
+  --text-yellow: var(--yellow); /* on the page blue: 2.87:1 */
+  --text-intro: var(--yellow-soft); /* on the page blue: 2.78:1 */
+  --text-greeting: var(--light-blue); /* on the page blue: 2.04:1 */
+  --text-strip: var(--yellow); /* "Get started" on light blue: 1.41:1 */
+  --text-label: var(--light-blue); /* "patient" on white: 1.53:1 */
+
+  /* --- Fonts ----------------------------------------------------------- */
+  /* Futura if it is installed on the computer, else Jost, a free look-alike.
+     DESIGNER DECISION: the real Futura needs a licence to be used on a site. */
+  --font-latin: "Futura", "Futura PT", "Jost", "Century Gothic", "Avenir Next", sans-serif;
+  --font-hebrew: "Heebo", "Arial Hebrew", "Noto Sans Hebrew", sans-serif;
+
+  /* --- Phone spacing: the Figma's gaps at 440px, shrinking with the screen --- */
+  --gutter: clamp(16px, 5.7vw, 25px);
+  --gap-logo-player: clamp(56px, 23.4vw, 103px);
+  --gap-player-intro: clamp(88px, 38.6vw, 170px);
+  --gap-intro-audiences: clamp(110px, 54.8vw, 241px);
+  --gap-heads-cards: clamp(110px, 59.8vw, 263px);
+  --gap-columns: clamp(10px, 4.3vw, 19px);
+  --section-gap: clamp(96px, 36.4vw, 160px);
+  --gap-before-credits: clamp(110px, 43.9vw, 193px);
+
+  /* --- Depth (tablet and wider) --------------------------------------- */
+  /* DESIGNER DECISION: shadows, panels and the lighter end of the card
+     gradient. All are mixed from the six colours above; there are none new. */
+  --shadow-card: 0 18px 40px rgb(33 49 84 / 0.22), 0 2px 6px rgb(33 49 84 / 0.12);
+  --shadow-small: 0 6px 14px rgb(33 49 84 / 0.16);
+  --card-end: color-mix(in srgb, var(--white) 38%, var(--blue));
+  --panel-bg: linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.05));
+  --panel-border: 1px solid rgb(255 255 255 / 0.22);
+
+  /* The starter styles every <main> with a max width and padding. This page
+     is full-screen, so switch that off. */
+  max-inline-size: none;
+  margin: 0;
+  padding: 0;
+
+  min-block-size: 100vh;
+  overflow-x: clip;
+  background: var(--blue);
+  color: var(--white);
+  font-family: var(--font-latin);
+  font-weight: 500;
+  line-height: normal;
+}
+
+/* :where() gives these resets no weight, so the classes below can set sizes. */
+.page :where(h1, h2, p) {
+  margin: 0;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.page :where(ul) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page :where(button) {
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.page :where(img) {
+  max-inline-size: 100%;
+}
+
+.page button:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+/* On a light card the yellow ring would vanish, so use the page blue there. */
+.featureCard button:focus-visible,
+.player button:focus-visible {
+  outline-color: var(--blue);
+}
+
+.visuallyHidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The column everything sits in. */
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-inline-size: 440px;
+  margin-inline: auto;
+  padding-block: clamp(72px, 31.1vw, 137px) clamp(64px, 21.8vw, 96px);
+}
+
+/* ===== PHONE: logo, player card, Hebrew introduction ===================== */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  inline-size: 100%;
+}
+
+/* The logo image has more empty space on its right, so the design nudges it
+   a little left of centre to make the letters look centred. */
+.logo {
+  position: relative;
+  inset-inline-start: clamp(-11px, -2.5vw, 0px);
+  line-height: 0;
+}
+
+.logo img {
+  display: block;
+  inline-size: min(382px, calc(100vw - 2 * var(--gutter)));
+  block-size: auto;
+}
+
+/*
+ * The player card is a container. Its contents are sized in cqw (1% of its own
+ * width), so it scales as one piece. 390 is the card's width in the Figma.
+ */
+.player {
+  container-type: inline-size;
+  inline-size: calc(100% - 2 * var(--gutter));
+  max-inline-size: 390px;
+  aspect-ratio: 390 / 198;
+  margin-block-start: var(--gap-logo-player);
+  border-radius: 30px;
+  background: linear-gradient(180deg, var(--white) 0%, var(--blue) 100%);
+}
+
+.playerBody {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  block-size: 100%;
+  padding: 8.97cqw 5.38cqw 0; /* 35 and 21 / 390 */
+}
+
+.playerTitle {
+  padding-inline-start: 1.54cqw; /* 6 / 390 */
+  color: var(--blue);
+  font-size: clamp(22px, 8.2cqw, 48px); /* 32 / 390 */
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  gap: 4.36cqw; /* 17 / 390 */
+  margin-block-start: 5.64cqw; /* 22 / 390 */
+}
+
+.playButton,
+.shelfPlay {
+  display: grid;
+  flex: none;
+  place-items: center;
+  /* 50 / 390, and never smaller than a comfortable touch target. */
+  inline-size: max(44px, 12.82cqw);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blue);
+  /* ESTIMATED: the PNG shows a soft inner shadow along the top of the circle. */
+  box-shadow: inset 0 4px 5px rgb(0 0 0 / 0.28);
+}
+
+.playIcon {
+  display: block;
+  inline-size: 50%;
+  block-size: 50%;
+  /* The triangle sits a hair right of centre so it looks centred. */
+  translate: 4% 0;
+}
+
+.playerLabel {
+  color: var(--blue);
+  font-size: clamp(14px, 4.1cqw, 20px); /* 16 / 390 */
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.intro {
+  inline-size: min(299px, calc(100% - 2 * var(--gutter)));
+  margin-block-start: var(--gap-player-intro);
+  color: var(--text-intro);
+  font-family: var(--font-hebrew);
+  font-size: clamp(17px, 4.77vw, 21px);
+  font-weight: 400;
+  line-height: 1.47;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.intro strong {
+  font-weight: 700;
+}
+
+/* ===== PHONE: Patient / Dentist headings, then the two cards ============= */
+
+/*
+ * Two columns. The headings are in the first row and the cards in the second.
+ * `display: contents` on .audience lets each heading and card be placed in the
+ * grid without losing their grouping in the markup, which wider screens use.
+ */
+.audiences {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 186.24px));
+  justify-content: center;
+  gap: var(--gap-heads-cards) var(--gap-columns);
+  inline-size: calc(100% - 2 * var(--gutter));
+  margin-block-start: var(--gap-intro-audiences);
+}
+
+.audience {
+  display: contents;
+}
+
+.audience[data-who="patient"] > * {
+  grid-column: 1;
+}
+
+.audience[data-who="dentist"] > * {
+  grid-column: 2;
+}
+
+.audienceHead {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* The design centres each heading a little left of its card. */
+  translate: -2.7% 0;
+  color: var(--text-yellow);
+  font-family: var(--font-hebrew);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.audienceHead img {
+  display: block;
+  inline-size: min(144px, 92%);
+  block-size: auto;
+}
+
+.audienceHead p {
+  margin-block-start: 1px;
+  text-align: center;
+}
+
+/*
+ * The feature card is a container, like the player: its illustration and text
+ * scale with it. 186.24 is its width in the Figma.
+ */
+.featureCard {
+  container-type: inline-size;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  overflow: hidden;
+  border-radius: 18.53px;
+  background: var(--light-blue);
+}
+
+.featurePanel {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 19px 0 16px;
+  border-radius: 18.53px;
+  background: var(--white);
+  color: var(--black);
+}
+
+.featureLabel {
+  color: var(--text-label);
+  font-size: clamp(14px, 8.96cqw, 18px); /* 16.68 / 186.24 */
+  font-weight: 700;
+  line-height: 1.26;
+  /* ESTIMATED from the PNG: these two labels are about 12% wider than plain Futura. */
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* The art is a container too: ring, dot and figure are sized in its own cqw.
+   156 is the ring's size in the Figma. */
+.featureArt {
+  container-type: inline-size;
+  position: relative;
+  inline-size: min(156px, 83.76cqw); /* 156 / 186.24 */
+  aspect-ratio: 1;
+  margin-block-start: 38px;
+}
+
+.featureRing,
+.featureDot,
+.featureFigure {
+  position: absolute;
+  display: block;
+  max-inline-size: none;
+}
+
+.featureRing {
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.featureDot {
+  inset-block-start: 74.36cqw; /* 116 / 156 */
+  inset-inline-start: 5.13cqw; /* 8 / 156 */
+  inline-size: 8.33cqw; /* 13 / 156 */
+  block-size: auto;
+}
+
+/* ESTIMATED by eye from the PNG: where each illustration sits in its ring. */
+.featureArt[data-who="patient"] .featureFigure {
+  inset-block-start: 11.22cqw; /* 17.5 / 156 */
+  inset-inline-start: 11.54cqw; /* 18 / 156 */
+  inline-size: 75.64cqw; /* 118 / 156 */
+  block-size: auto;
+}
+
+.featureArt[data-who="dentist"] .featureFigure {
+  inset-block-start: 9.62cqw; /* 15 / 156 */
+  inset-inline-start: 13.46cqw; /* 21 / 156 */
+  inline-size: 78.21cqw; /* 122 / 156 */
+  block-size: auto;
+}
+
+.featureText {
+  inline-size: 79.1cqw; /* 147.32 / 186.24 */
+  margin-block-start: 37px;
+}
+
+.featureText h2 {
+  font-size: clamp(13px, 7.96cqw, 15px); /* 14.83 / 186.24 */
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.featureText p {
+  margin-block-start: 8px;
+  /* READABILITY: the Figma's 7.4px is too small to read, so this is 11px at the
+     design's size and never below 10.5px. DESIGNER DECISION. */
+  font-size: clamp(10.5px, 5.9cqw, 11.5px);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.featureAction {
+  display: grid;
+  flex: none;
+  block-size: 50px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-strip);
+  font-size: clamp(14px, 7.96cqw, 15px);
+  font-weight: 700;
+}
+
+/* ===== Left out for now (see SHOW_SECTIONS in content.ts) =============== */
+
+.typographyNote {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  inline-size: 100%;
+  margin-block-start: var(--section-gap);
+  padding-inline: clamp(16px, 10vw, 45px);
+  color: var(--yellow);
+  text-align: center;
+}
+
+.swirl {
+  position: absolute;
+  inset-block-start: 42px;
+  inset-inline-start: -106px;
+  inline-size: 377px;
+  block-size: 650px;
+  max-inline-size: none;
+  pointer-events: none;
+}
+
+.specimen {
+  position: relative;
+}
+
+.specimenTitle {
+  font-size: clamp(40px, 12vw, 54px);
+}
+
+/* ESTIMATED: the export lost the size of the small lines under each title. */
+.specimenBody {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.specimen[lang="he"] {
+  font-family: var(--font-hebrew);
+}
+
+.specimenBody strong {
+  font-weight: 700;
+}
+
+.privacyNote {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  margin-block-start: var(--section-gap);
+}
+
+/* A container, so the rings and the text scale together. 337 is the width of
+   the whole drawing in the Figma. */
+.privacyArt {
+  container-type: inline-size;
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: min(337px, calc(100% - 2 * var(--gutter)));
+  aspect-ratio: 1;
+}
+
+.privacyFill,
+.privacyRing,
+.privacyDot {
+  position: absolute;
+  display: block;
+  max-inline-size: none;
+}
+
+.privacyFill {
+  inline-size: 81.9cqw; /* 276 / 337 */
+  block-size: auto;
+}
+
+.privacyRing {
+  inline-size: 99.7cqw; /* 336 / 337 */
+  block-size: auto;
+}
+
+.privacyDot {
+  inset-block-start: 51cqw; /* 172 / 337 */
+  inset-inline-start: 0;
+  inline-size: 3.86cqw; /* 13 / 337 */
+  block-size: auto;
+}
+
+.privacyText {
+  position: relative;
+  inline-size: 59.6cqw; /* 201 / 337 */
+  color: var(--blue);
+  font-family: var(--font-hebrew);
+  font-size: clamp(11px, 4.15cqw, 14px);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ===== PHONE: the mock of the app's screen =============================== */
+
+.preview {
+  inline-size: 100%;
+  margin-block-start: var(--section-gap);
+}
+
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-inline-start: clamp(10px, 3.2vw, 14px);
+  color: var(--text-greeting);
+  font-size: clamp(13px, 3.2vw, 14px);
+  /* ESTIMATED from the PNG: wider than plain Futura, like featureLabel. */
+  letter-spacing: 0.07em;
+}
+
+.avatar {
+  position: relative;
+  flex: none;
+  inline-size: 59px;
+  block-size: 59px;
+}
+
+.avatar img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: block;
+  max-inline-size: none;
+}
+
+.avatarRing {
+  inline-size: 59px;
+  block-size: 59px;
+}
+
+.avatarFill {
+  inline-size: 48px;
+  block-size: 48px;
+}
+
+.avatarArt {
+  inline-size: 41px;
+  block-size: 39px;
+}
+
+/* Wider than the screen, so the last chip is cut off: that is how the design
+   shows that the row slides sideways. */
+.chips {
+  display: flex;
+  gap: 14px;
+  margin-block-start: clamp(36px, 12.5vw, 55px);
+  padding-inline-start: clamp(10px, 3.4vw, 15px);
+  overflow: hidden;
+}
+
+.chip {
+  flex: none;
+  box-sizing: border-box;
+  inline-size: 92px;
+  block-size: 46px;
+  padding-block-start: 13px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, var(--white) 0%, var(--blue) 100%);
+  color: var(--blue);
+  font-size: 14px;
+  text-align: center;
+}
+
+.chip:first-child {
+  inline-size: 57px;
+}
+
+.shelfHeading {
+  margin-block: clamp(36px, 11.8vw, 52px) clamp(12px, 3.9vw, 17px);
+  padding-inline-start: clamp(28px, 10.7vw, 47px);
+  color: var(--yellow-soft);
+  font-size: 12px;
+  /* ESTIMATED from the PNG (see greeting). */
+  letter-spacing: 0.07em;
+}
+
+/* Shows the middle card in full and the edges of its neighbours. */
+.shelf {
+  overflow: hidden;
+}
+
+.shelfTrack {
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px, 3.2vw, 14px);
+}
+
+/*
+ * A shelf card is a container too. 390 is its width in the Figma. Its pieces
+ * are laid out in a row (play button, then title) and the photo sits behind.
+ */
+.shelfCard {
+  container-type: inline-size;
+  flex: none;
+  inline-size: min(390px, calc(100vw - 2 * var(--gutter)));
+  aspect-ratio: 390 / 198;
+  border-radius: 30px;
+  background: linear-gradient(180deg, var(--white) 0%, var(--blue) 100%);
+}
+
+.shelfBody {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  gap: 4.36cqw; /* 17 / 390 */
+  block-size: 100%;
+  padding: 0 0 8.46cqw 10cqw; /* 33 and 39 / 390 */
+}
+
+.shelfPhoto {
+  position: absolute;
+  inset-block-start: 6.15cqw; /* 24 / 390 */
+  inset-inline-end: 5.64cqw; /* 22 / 390 */
+  display: block;
+  inline-size: 56.9cqw; /* 222 / 390 */
+  block-size: auto;
+  max-inline-size: none;
+}
+
+.shelfTitle {
+  position: relative;
+  align-self: flex-end;
+  /* Sits a little below the button's centre, as in the design. */
+  margin-block-end: 2.44cqw; /* 9.5 / 390 */
+  color: var(--white);
+  font-size: clamp(11px, 3.33cqw, 17px); /* 13 / 390 */
+  font-weight: 700;
+  line-height: 1.38;
+  white-space: nowrap;
+}
+
+.shelfPlay {
+  position: relative;
+}
+
+/* ===== PHONE: credits ==================================================== */
+
+.credits {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-block-start: var(--gap-before-credits);
+  font-family: var(--font-hebrew);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.creditNames {
+  text-align: center;
+}
+
+.tooth {
+  display: block;
+  margin-block-start: 25px;
+  inline-size: 50px;
+  block-size: 50px;
+}
+
+/* ======================================================================== *
+ * TABLET (640px and up). A centred column about 700px wide, with every piece
+ * larger and closer together.
+ *   - Logo, introduction, then the player card, one under the other.
+ *   - Each Patient / Dentist heading sits with its own wide "landscape" card.
+ *   - The app preview sits in one panel.
+ * DESIGNER DECISION: all of it.
+ * ======================================================================== */
+@media (min-width: 40em) {
+  .page {
+    --section-gap: 72px;
+    background:
+      radial-gradient(70% 420px at 50% 0, rgb(255 255 255 / 0.16), transparent 72%), var(--blue);
+  }
+
+  .stage {
+    max-inline-size: 44rem;
+    padding: 88px 40px 80px;
+  }
+
+  /* -- Hero: the introduction comes before the card (on a phone it is after) -- */
+  .hero {
+    gap: 32px;
+  }
+
+  .logo {
+    order: 1;
+    inset-inline-start: 0;
+    inline-size: min(420px, 100%);
+  }
+
+  .logo img {
+    inline-size: 100%;
+  }
+
+  .intro {
+    order: 2;
+    inline-size: min(520px, 100%);
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  .player {
+    order: 3;
+    inline-size: min(480px, 100%);
+    max-inline-size: none;
+    margin-block-start: 16px;
+    /* DESIGNER DECISION: the card ends in a lighter blue instead of fading into
+       the page, so it keeps its edge, and it casts a shadow. */
+    background: linear-gradient(180deg, var(--white) 0%, var(--card-end) 100%);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* -- Patient and Dentist: each heading with its own card, stacked -- */
+  .audiences {
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    /* Full width, so its edges line up with the panels above and below. */
+    inline-size: 100%;
+    margin-block-start: var(--section-gap);
+  }
+
+  .audience {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .audience > * {
+    grid-column: auto;
+  }
+
+  .audienceHead {
+    translate: none;
+    font-size: 16px;
+  }
+
+  /* Never larger than 1.2x the file, so the lettering stays sharp. */
+  .audienceHead img {
+    inline-size: auto;
+    block-size: 66px;
+  }
+
+  .audienceHead p {
+    margin-block-start: 6px;
+  }
+
+  /* DESIGNER DECISION: a wide "landscape" card. The illustration sits on the
+     left; the label, title and text on the right; "Get started" along the
+     bottom. The phone's tall card would leave most of the row empty. All sizes
+     are fractions of the card's own width, so it works at any width. */
+  .featureCard {
+    grid-row: auto;
+    border-radius: 24px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .featurePanel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "art label"
+      "art text";
+    align-content: center;
+    column-gap: clamp(20px, 5cqw, 36px);
+    row-gap: 6px;
+    padding: clamp(22px, 5cqw, 36px);
+    border-radius: 24px;
+  }
+
+  .featureLabel {
+    grid-area: label;
+    align-self: end;
+    font-size: clamp(14px, 2.6cqw, 17px);
+    text-align: start;
+  }
+
+  .featureArt {
+    grid-area: art;
+    align-self: center;
+    inline-size: clamp(132px, 32cqw, 190px);
+    margin: 0;
+  }
+
+  .featureText {
+    grid-area: text;
+    align-self: start;
+    inline-size: auto;
+    margin: 0;
+  }
+
+  .featureText h2 {
+    font-size: clamp(20px, 4.4cqw, 28px);
+    line-height: 1.15;
+  }
+
+  .featureText p {
+    margin-block-start: 10px;
+    font-size: clamp(14px, 2.8cqw, 16px);
+    line-height: 1.45;
+  }
+
+  .featureAction {
+    block-size: 56px;
+    font-size: clamp(15px, 2.7cqw, 18px);
+  }
+
+  /* -- App preview: one panel -- */
+  .preview {
+    box-sizing: border-box;
+    padding: 32px;
+    border: var(--panel-border);
+    border-radius: 32px;
+    /* DESIGNER DECISION: a faint light panel behind the app, from the page colour. */
+    background: var(--panel-bg);
+    box-shadow: var(--shadow-card);
+  }
+
+  .panelHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .greeting {
+    padding-inline-start: 0;
+    font-size: 16px;
+  }
+
+  .chips {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .chip {
+    background: linear-gradient(180deg, var(--white) 0%, var(--card-end) 100%);
+    box-shadow: var(--shadow-small);
+  }
+
+  .shelfHeading {
+    margin-block: 36px 20px;
+    padding: 0;
+    font-size: 16px;
+    letter-spacing: 0.06em;
+  }
+
+  .shelf {
+    overflow: visible;
+  }
+
+  /*
+   * DESIGNER DECISION: the cards fill the panel. A card with no photo is
+   * hidden: the design has no picture for it, and none is made up. (On a phone
+   * it is the edge of a neighbour, as in the design.) Add the photo in
+   * DesignPage.tsx and the card appears. With one photo the card is as wide as
+   * the panel allows; with two or three they share the row.
+   */
+  .shelfTrack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 480px));
+    justify-content: center;
+    gap: 24px;
+  }
+
+  .shelfCard {
+    inline-size: auto;
+    box-shadow: var(--shadow-card);
+    background: linear-gradient(180deg, var(--white) 0%, var(--card-end) 100%);
+  }
+
+  .shelfCard[data-photo="missing"] {
+    display: none;
+  }
+
+  /* -- Credits: a footer band -- */
+  .credits {
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 20px;
+    inline-size: 100%;
+    margin-block-start: var(--section-gap);
+    padding-block-start: 40px;
+    border-block-start: 1px solid rgb(255 255 255 / 0.28);
+    font-size: 15px;
+  }
+
+  .creditNames {
+    text-align: start;
+  }
+
+  .tooth {
+    margin: 0;
+  }
+}
+
+/* ======================================================================== *
+ * DESKTOP (1024px and up). Content up to 1120px wide, in two columns.
+ *   - The logo and introduction on the left, the player card on the right,
+ *     together in one panel.
+ *   - Patient and Dentist side by side, each heading with its own card.
+ * DESIGNER DECISION: all of it.
+ * ======================================================================== */
+@media (min-width: 64em) {
+  .page {
+    --section-gap: 96px;
+  }
+
+  .stage {
+    max-inline-size: 70rem;
+    padding: 72px 48px 88px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "logo player"
+      "intro player";
+    align-items: center;
+    justify-items: center;
+    column-gap: clamp(32px, 5vw, 72px);
+    row-gap: 28px;
+    padding: clamp(40px, 5vw, 64px);
+    border: var(--panel-border);
+    border-radius: 36px;
+    background: var(--panel-bg);
+    box-shadow: var(--shadow-card);
+  }
+
+  .logo {
+    grid-area: logo;
+    align-self: end;
+  }
+
+  .intro {
+    grid-area: intro;
+    align-self: start;
+    font-size: clamp(22px, 2.2vw, 28px);
+    text-wrap: balance;
+  }
+
+  .player {
+    grid-area: player;
+    inline-size: 100%;
+    max-inline-size: 480px;
+    margin: 0;
+  }
+
+  .audiences {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 48px;
+  }
+
+  .audienceHead {
+    font-size: 17px;
+  }
+
+  .featureCard {
+    flex: 1;
+  }
+
+  .featurePanel {
+    flex: 1;
+  }
+
+  .preview {
+    padding: 40px 48px 48px;
+  }
+}
+
+/* ======================================================================== *
+ * LARGE DESKTOP (1440px and up). The same page held to a maximum width of
+ * 1200px, so nothing drifts apart. The logo and introduction move back above
+ * the player card, all centred, because there is room for a stronger top.
+ * DESIGNER DECISION: all of it.
+ * ======================================================================== */
+@media (min-width: 90em) {
+  .page {
+    --section-gap: 112px;
+  }
+
+  .stage {
+    max-inline-size: 75rem;
+    padding: 80px 56px 96px;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .logo,
+  .intro {
+    align-self: center;
+  }
+
+  .intro {
+    inline-size: min(560px, 100%);
+    font-size: 28px;
+  }
+
+  .player {
+    inline-size: min(520px, 100%);
+    margin-block-start: 24px;
+  }
 }
