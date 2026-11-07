@@ -1,13 +1,8 @@
 import { Suspense } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, NavLink, Outlet } from "react-router";
 import { Spinner } from "../components";
 import { useAuth } from "../lib/auth";
-import {
-  APP_NAME,
-  COURSE_CREDITS,
-  COURSE_GITHUB,
-  SHOW_DEMOS,
-} from "../lib/config";
+import { APP_NAME, COURSE_CREDITS } from "../lib/config";
 import styles from "./Layout.module.css";
 
 /**
@@ -31,11 +26,12 @@ export function Layout() {
           {APP_NAME}
         </Link>
         <nav className={styles.nav}>
-          <Link to="/">Home</Link>
-          <a href={COURSE_GITHUB} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          {SHOW_DEMOS ? <Link to="/demos">Demos</Link> : null}
+          <NavLink to="/" end>
+            Home
+          </NavLink>
+          <NavLink to="/tic-tac-toe">Tic-tac-toe</NavLink>
+          <NavLink to="/nasa">NASA</NavLink>
+          <NavLink to="/design">Dentify</NavLink>
         </nav>
       </header>
 
@@ -53,7 +49,6 @@ export function Layout() {
       </div>
 
       <footer className={styles.footer}>
-        <p>This is some example footer content.</p>
         <p>
           <AuthAction /> | {COURSE_CREDITS}
         </p>
