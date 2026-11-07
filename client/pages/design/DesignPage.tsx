@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import artDentist from "./assets/art-dentist.png";
 import artPatient from "./assets/art-patient.png";
 import avatarArt from "./assets/avatar-art.png";
@@ -11,9 +10,6 @@ import labelPatient from "./assets/label-patient.png";
 import logo from "./assets/logo.png";
 import photoBlurred from "./assets/photo-blurred.png";
 import play from "./assets/play.svg";
-import privacyDot from "./assets/privacy-dot.png";
-import privacyFill from "./assets/privacy-fill.png";
-import privacyRing from "./assets/privacy-ring.png";
 import swirl from "./assets/swirl.svg";
 import tooth from "./assets/tooth.svg";
 import { SHOW_SECTIONS, copy, type Run, type ShowSections } from "./content";
@@ -207,20 +203,13 @@ function Audiences() {
 }
 
 // ---------------------------------------------------------------------------
-// Left out for now: see SHOW_SECTIONS in content.ts
+// The typeface, and the privacy circle
 // ---------------------------------------------------------------------------
 
 function TypographyNote() {
   const note = copy.typographyNote;
   return (
-    <section className={styles.typographyNote} aria-label="Typography note">
-      <img
-        src={swirl}
-        alt=""
-        width={377}
-        height={650}
-        className={styles.swirl}
-      />
+    <section className={styles.typographyNote} aria-label="Typography">
       <div className={styles.specimen}>
         <p className={styles.specimenTitle}>{note.latinTitle}</p>
         <p className={styles.specimenBody}>
@@ -243,34 +232,76 @@ function TypographyNote() {
 
 function PrivacyNote() {
   return (
-    <section className={styles.privacyNote} aria-label="Privacy note">
+    <section className={styles.privacyNote} aria-label="Privacy">
       <div className={styles.privacyArt}>
-        <img
-          src={privacyFill}
-          alt=""
-          width={276}
-          height={276}
-          className={styles.privacyFill}
-        />
-        <img
-          src={privacyRing}
-          alt=""
-          width={336}
-          height={336}
-          className={styles.privacyRing}
-        />
-        <img
-          src={privacyDot}
-          alt=""
-          width={13}
-          height={13}
-          className={styles.privacyDot}
-        />
+        {/* The circle is drawn as a vector, so it stays sharp at any size.
+            Measured from the Figma: a 3px ring (yellow on the upper left, white
+            on the lower right), a light disc inside it, and a small yellow dot
+            on the ring a little below the middle. */}
+        <svg
+          className={styles.privacySvg}
+          viewBox="0 0 337 337"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <linearGradient
+              id="privacy-ring-gradient"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="1"
+            >
+              <stop offset="0.41" className={styles.privacyRingFrom} />
+              <stop offset="0.53" className={styles.privacyRingTo} />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="168.5"
+            cy="168.5"
+            r="138"
+            className={styles.privacyDisc}
+          />
+          <circle
+            cx="168.5"
+            cy="168.5"
+            r="167"
+            fill="none"
+            stroke="url(#privacy-ring-gradient)"
+            strokeWidth="3"
+          />
+          <circle cx="2.9" cy="190" r="6.5" className={styles.privacyDot} />
+        </svg>
         <p lang="he" dir="rtl" className={styles.privacyText}>
           {copy.privacyNote}
         </p>
       </div>
     </section>
+  );
+}
+
+/**
+ * The two sections belong together, as in the design: the curved line starts
+ * behind the typeface text and runs on toward the circle. On a phone they are
+ * one under the other; on a wide screen the text is on one side and the circle
+ * on the other. Each can be switched off in content.ts.
+ */
+function Story({ show }: { show: ShowSections }) {
+  if (!show.typographyNote && !show.privacyNote) return null;
+  return (
+    <div className={styles.story}>
+      {show.typographyNote ? (
+        <img
+          src={swirl}
+          alt=""
+          width={440}
+          height={555}
+          className={styles.swirl}
+        />
+      ) : null}
+      {show.typographyNote ? <TypographyNote /> : null}
+      {show.privacyNote ? <PrivacyNote /> : null}
+    </div>
   );
 }
 
@@ -391,24 +422,20 @@ function Credits() {
 // ---------------------------------------------------------------------------
 
 /**
- * The page. `show` lets a test (or you) turn the left-out sections on without
- * touching content.ts.
+ * The page. `show` lets a test (or you) switch the typeface and privacy
+ * sections without touching content.ts.
  */
 export function DesignPageView({
   show = SHOW_SECTIONS,
 }: {
   show?: ShowSections;
 }) {
-  const optional: ReactNode[] = [];
-  if (show.typographyNote) optional.push(<TypographyNote key="typography" />);
-  if (show.privacyNote) optional.push(<PrivacyNote key="privacy" />);
-
   return (
     <main className={styles.page}>
       <div className={styles.stage}>
         <Hero />
         <Audiences />
-        {optional}
+        <Story show={show} />
         <Preview />
         <Credits />
       </div>

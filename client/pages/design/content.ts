@@ -1,6 +1,6 @@
 /*
- * Everything the /design page SAYS, and the two switches for the sections that
- * are left out for now.
+ * Everything the /design page SAYS, and the two switches for the typeface and
+ * privacy sections.
  *
  * All the text comes from the Figma export, word for word (the export file is not
  * kept in this repository).
@@ -8,17 +8,19 @@
  */
 
 /**
- * Sections of the Figma frame that are NOT on the page for now. Both are built
- * and ready: set one to `true` to put it back.
+ * Two sections of the Figma frame, which are part of the design:
  *
- * - typographyNote: the "Futura in Heavy and Medium weights" font specimen. It
- *   is a note about the typeface, not product copy.
+ * - typographyNote: "Futura in Heavy and Medium weights", in English and
+ *   Hebrew, with the curved line running behind it.
  * - privacyNote: the Hebrew text about WebSockets, "Ducking" and "PHI" inside a
- *   ring. It reads like a technical note. The designer decides if it belongs.
+ *   circle.
+ *
+ * Both are ON. The switches stay so either can be hidden again without touching
+ * the page code: set one to `false`.
  */
 export const SHOW_SECTIONS = {
-  typographyNote: false,
-  privacyNote: false,
+  typographyNote: true,
+  privacyNote: true,
 };
 
 export type ShowSections = typeof SHOW_SECTIONS;
@@ -84,7 +86,7 @@ export const copy = {
     latin: "Idan David Shira Didi",
   },
 
-  /** Left out for now (see SHOW_SECTIONS). */
+  /** The typeface section (see SHOW_SECTIONS). */
   typographyNote: {
     latinTitle: "Futura",
     latinRuns: [
@@ -104,7 +106,7 @@ export const copy = {
       "משתלב באופן מושלם עם השפה האיורית ומשדר רוגע חיוניות וכיף לתוך חווית המוסיקה לכלל המאזינים.",
   },
 
-  /** Left out for now (see SHOW_SECTIONS). */
+  /** The typeface section (see SHOW_SECTIONS). */
   privacyNote:
     "המערכת מבוססת על תקשורת WebSockets מושהית לזמן אמת עבור הנמכת שמע (Ducking) ואותות מצוקה שקטים, ושומרת על פרטיות מלאה ללא אגירת מידע רפואי (PHI).",
 };

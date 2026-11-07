@@ -27,6 +27,7 @@
   --light-blue: #b8d2ff; /* rgb(184, 210, 255): feature cards, greeting */
   --white: #ffffff;
   --black: #000000;
+  --off-white: #f7f7f7; /* rgb(247, 247, 247): the privacy circle's disc */
 
   /*
    * CONTRAST. These pairs are the Figma's own, and they are kept so the design
@@ -411,42 +412,81 @@
   font-weight: 700;
 }
 
-/* ===== Left out for now (see SHOW_SECTIONS in content.ts) =============== */
+/* ===== PHONE: the typeface, and the privacy circle ======================= */
 
-.typographyNote {
+/*
+ * These two belong together, as in the design: the curved line starts behind
+ * the typeface text and runs on toward the circle. .story is a container, so on
+ * a phone the line, the text and the gaps scale with it. 440 is the Figma
+ * frame's width, and each `/ 440` below is a Figma measurement.
+ */
+.story {
+  container-type: inline-size;
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  align-items: center;
   inline-size: 100%;
-  margin-block-start: var(--section-gap);
-  padding-inline: clamp(16px, 10vw, 45px);
-  color: var(--yellow);
-  text-align: center;
+  margin-block-start: clamp(120px, 66.4vw, 292px); /* 292 / 440 */
+  gap: clamp(120px, 66.4vw, 292px);
 }
 
+/* After the circle the design leaves about 320px before the app preview. */
+.story + .preview {
+  margin-block-start: clamp(130px, 73vw, 321px);
+}
+
+/*
+ * The curved line. The export says 377 x 650 at -106, but that is Figma's frame
+ * around it, not the drawing. Fitting the exported path to the PNG (matching
+ * its line pixels, mean error about 1px) puts it at its natural size, 440 x 555,
+ * with no rotation, starting at the top of the typeface text. It is a vector,
+ * so it stays sharp at any size, and it sits behind the text.
+ */
 .swirl {
   position: absolute;
-  inset-block-start: 42px;
-  inset-inline-start: -106px;
-  inline-size: 377px;
-  block-size: 650px;
+  z-index: -1;
+  inset-block-start: -0.16cqw; /* -0.7 / 440 */
+  inset-inline-start: 0;
+  inline-size: 99.7cqw; /* 438.5 / 440 */
+  block-size: 126.3cqw; /* 555.6 / 440 */
   max-inline-size: none;
+  object-fit: fill;
   pointer-events: none;
 }
 
-.specimen {
-  position: relative;
+.typographyNote {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 21.2cqw; /* 93.3 / 440, measured between the two blocks */
+  inline-size: 100%;
+  padding-block-start: 8.2cqw; /* 36 / 440: the text starts a little below the top */
+  padding-inline: 10.2cqw; /* 45 / 440 */
+  color: var(--text-yellow);
+  text-align: center;
 }
 
 .specimenTitle {
-  font-size: clamp(40px, 12vw, 54px);
+  font-size: clamp(38px, 12.27cqw, 54px); /* 54 / 440 */
+  /* ESTIMATED: tight, so the title sits 34px above the first line, as in the PNG. */
+  line-height: 0.79;
 }
 
-/* ESTIMATED: the export lost the size of the small lines under each title. */
+.specimen[lang="he"] .specimenTitle {
+  line-height: 1.09;
+}
+
+/* ESTIMATED: the export lost the size of the lines under each title. Matched
+   to the width of "It aligns seamlessly with the illustrative" in the PNG (328px). */
 .specimenBody {
-  font-size: 17px;
-  line-height: 1.5;
+  font-size: clamp(15px, 4.32cqw, 19px); /* 19 / 440 */
+  line-height: 1.33; /* 25.3px between lines in the PNG */
+}
+
+.specimen[lang="he"] .specimenBody {
+  line-height: 1.46; /* 27.8px between lines in the PNG */
 }
 
 .specimen[lang="he"] {
@@ -461,7 +501,6 @@
   display: grid;
   place-items: center;
   inline-size: 100%;
-  margin-block-start: var(--section-gap);
 }
 
 /* A container, so the rings and the text scale together. 337 is the width of
@@ -475,29 +514,31 @@
   aspect-ratio: 1;
 }
 
-.privacyFill,
-.privacyRing,
-.privacyDot {
+.privacySvg {
   position: absolute;
-  display: block;
-  max-inline-size: none;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  /* The dot sits half outside the ring's box, so do not clip it. */
+  overflow: visible;
 }
 
-.privacyFill {
-  inline-size: 81.9cqw; /* 276 / 337 */
-  block-size: auto;
+/* The colours come from the page's own: the ring runs from the soft yellow to
+   white, the disc is the Figma's light grey. */
+.privacyRingFrom {
+  stop-color: var(--yellow-soft);
 }
 
-.privacyRing {
-  inline-size: 99.7cqw; /* 336 / 337 */
-  block-size: auto;
+.privacyRingTo {
+  stop-color: var(--white);
+}
+
+.privacyDisc {
+  fill: var(--off-white);
 }
 
 .privacyDot {
-  inset-block-start: 51cqw; /* 172 / 337 */
-  inset-inline-start: 0;
-  inline-size: 3.86cqw; /* 13 / 337 */
-  block-size: auto;
+  fill: var(--yellow);
 }
 
 .privacyText {
@@ -505,8 +546,9 @@
   inline-size: 59.6cqw; /* 201 / 337 */
   color: var(--blue);
   font-family: var(--font-hebrew);
-  font-size: clamp(11px, 4.15cqw, 14px);
+  font-size: clamp(11.5px, 4.15cqw, 18px); /* 14 / 337 */
   font-weight: 700;
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -828,6 +870,57 @@
     font-size: clamp(15px, 2.7cqw, 18px);
   }
 
+  /*
+   * -- The typeface and the privacy circle --
+   * DESIGNER DECISION: the English and Hebrew text side by side, the circle
+   * centred below them, and the curved line behind the lot, scaled to fit.
+   */
+  .story {
+    margin-block-start: var(--section-gap);
+    gap: 56px;
+  }
+
+  .story + .preview {
+    margin-block-start: var(--section-gap);
+  }
+
+  /* The line spans the width of the text, as it spans the frame on a phone. The
+     picture is scaled to fit that width and only its top part is shown, fading
+     out before it reaches the circle. */
+  .swirl {
+    inset: 0 0 auto 0;
+    inline-size: 100%;
+    block-size: 56%;
+    object-fit: cover;
+    object-position: 50% 0;
+    mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+  }
+
+  .typographyNote {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 40px;
+    padding: 0;
+  }
+
+  .specimenTitle,
+  .specimen[lang="he"] .specimenTitle {
+    font-size: clamp(56px, 8.5vw, 68px);
+    /* The phone's tight spacing matches the PNG; a larger title needs room. */
+    line-height: 1.2;
+    margin-block-end: 8px;
+  }
+
+  .specimenBody {
+    font-size: clamp(17px, 2.6vw, 20px);
+  }
+
+  /* Never larger than 1.25x the file, so the circle stays sharp. */
+  .privacyArt {
+    inline-size: min(380px, 100%);
+  }
+
   /* -- App preview: one panel -- */
   .preview {
     box-sizing: border-box;
@@ -991,6 +1084,42 @@
 
   .featurePanel {
     flex: 1;
+  }
+
+  /* DESIGNER DECISION: the English text over the Hebrew text on the left, the
+     circle on the right, and the curved line running behind both. */
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: clamp(40px, 6vw, 96px);
+  }
+
+  /* Here the whole drawing fits behind the left column, so show all of it. */
+  .swirl {
+    inset: -4% auto auto 20%;
+    inline-size: auto;
+    block-size: 100%;
+    object-fit: contain;
+    mask-image: none;
+  }
+
+  .typographyNote {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 56px;
+  }
+
+  .specimenTitle,
+  .specimen[lang="he"] .specimenTitle {
+    font-size: clamp(64px, 6vw, 84px);
+  }
+
+  .specimenBody {
+    font-size: clamp(19px, 1.7vw, 23px);
+  }
+
+  .privacyArt {
+    inline-size: min(420px, 100%);
   }
 
   .preview {

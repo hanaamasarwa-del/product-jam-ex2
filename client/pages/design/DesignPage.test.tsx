@@ -64,37 +64,99 @@ describe("the Dentify page: what is on it", () => {
   });
 });
 
-describe("the sections that are left out for now", () => {
-  it("are off by default", () => {
-    expect(SHOW_SECTIONS).toEqual({
-      typographyNote: false,
-      privacyNote: false,
-    });
+describe("the typeface and privacy sections", () => {
+  const both = { typographyNote: true, privacyNote: true };
+  const off = { typographyNote: false, privacyNote: false };
+
+  it("are both on by default, as part of the design", () => {
+    expect(SHOW_SECTIONS).toEqual(both);
   });
 
-  it("do not appear on the page", () => {
-    expect(html).not.toContain("Heavy");
-    expect(html).not.toContain("Medium weights");
-    expect(html).not.toContain(copy.typographyNote.hebrewTitle);
-    expect(html).not.toContain("WebSockets");
-    expect(html).not.toContain("PHI");
-    expect(html).not.toContain("Typography note");
-    expect(html).not.toContain("Privacy note");
+  it("show the English typeface text", () => {
+    expect(html).toContain(copy.typographyNote.latinTitle);
+    expect(html).toContain("<strong>Heavy</strong>");
+    expect(html).toContain("Medium weights.");
+    expect(html).toContain(copy.typographyNote.latinBody);
   });
 
-  it("come back when they are switched on", () => {
-    expect(htmlWithEverything).toContain("Medium weights");
-    expect(htmlWithEverything).toContain(copy.typographyNote.hebrewTitle);
-    expect(htmlWithEverything).toContain("WebSockets");
-    expect(htmlWithEverything).toContain("PHI");
-  });
-
-  it("can be switched on one at a time", () => {
-    const onlyPrivacy = renderToStaticMarkup(
-      <DesignPageView show={{ typographyNote: false, privacyNote: true }} />,
+  it("show the Hebrew typeface text, right to left", () => {
+    expect(html).toContain(copy.typographyNote.hebrewTitle);
+    expect(html).toContain("<strong>כבד</strong>");
+    expect(html).toContain(copy.typographyNote.hebrewBody);
+    expect(html).toMatch(
+      new RegExp(
+        `lang="he" dir="rtl"[^>]*><p[^>]*>${copy.typographyNote.hebrewTitle}<`,
+      ),
     );
-    expect(onlyPrivacy).toContain("WebSockets");
-    expect(onlyPrivacy).not.toContain("Medium weights");
+  });
+
+  it("show the privacy text in Hebrew, right to left, word for word", () => {
+    expect(html).toContain("WebSockets");
+    expect(html).toContain("(Ducking)");
+    expect(html).toContain("(PHI)");
+    expect(html).toMatch(/<p[^>]*lang="he" dir="rtl"[^>]*>המערכת מבוססת/);
+    expect(html).toContain(copy.privacyNote);
+  });
+
+  it("draw the circle as a vector: a 3px ring, a light disc and a dot", () => {
+    const svg = html.match(/<svg[\s\S]*?<\/svg>/)?.[0] ?? "";
+    expect(svg).toContain('viewBox="0 0 337 337"');
+    expect(svg).toContain('stroke-width="3"');
+    expect(svg).toContain('stroke="url(#privacy-ring-gradient)"');
+    expect(svg.match(/<circle/g)).toHaveLength(3);
+    expect(svg).toContain('aria-hidden="true"');
+  });
+
+  it("keep the curved line as decoration, with no description", () => {
+    const swirl = html.match(/<img[^>]*swirl[^>]*>/)?.[0] ?? "";
+    expect(swirl).toContain('alt=""');
+    expect(swirl).toContain("swirl");
+  });
+
+  it("keep them together: the curve, then the typeface text, then the circle", () => {
+    const story =
+      html.match(/<div[^>]*class="_story_[\s\S]*?<\/footer>/)?.[0] ?? "";
+    const swirl = story.indexOf("swirl");
+    const typeface = story.indexOf("Futura");
+    const circle = story.indexOf("WebSockets");
+    expect(swirl).toBeGreaterThan(-1);
+    expect(typeface).toBeGreaterThan(swirl);
+    expect(circle).toBeGreaterThan(typeface);
+  });
+
+  it("come after the Patient and Dentist cards and before the app", () => {
+    expect(html.indexOf(copy.features.dentist.title)).toBeLessThan(
+      html.indexOf(copy.typographyNote.latinTitle),
+    );
+    expect(html.indexOf("WebSockets")).toBeLessThan(
+      html.indexOf(copy.preview.greeting),
+    );
+  });
+
+  it("can hide the typeface section alone, taking its curve with it", () => {
+    const only = renderToStaticMarkup(
+      <DesignPageView show={{ ...both, typographyNote: false }} />,
+    );
+    expect(only).not.toContain("Medium weights");
+    expect(only).not.toContain(copy.typographyNote.hebrewTitle);
+    expect(only).not.toMatch(/<img[^>]*swirl/);
+    expect(only).toContain("WebSockets");
+  });
+
+  it("can hide the privacy section alone", () => {
+    const only = renderToStaticMarkup(
+      <DesignPageView show={{ ...both, privacyNote: false }} />,
+    );
+    expect(only).not.toContain("WebSockets");
+    expect(only).not.toContain("<svg");
+    expect(only).toContain("Medium weights");
+  });
+
+  it("leave no empty block behind when both are hidden", () => {
+    const none = renderToStaticMarkup(<DesignPageView show={off} />);
+    expect(none).not.toContain("_story_");
+    expect(none).not.toContain("Medium weights");
+    expect(none).not.toContain("WebSockets");
   });
 });
 
