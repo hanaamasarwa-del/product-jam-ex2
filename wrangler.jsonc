@@ -4,7 +4,7 @@
   // Your app's name. It becomes part of the URL: <name>.<your-subdomain>.workers.dev
   // Change this to your team's app name. It must match the Worker name in the
   // Cloudflare dashboard exactly, or the automatic deploy fails.
-  "name": "starter-kit",
+  "name": "hannah-product-jam-ex2",
 
   // Which version of the Cloudflare runtime to use. Leave this alone unless you
   // know why you're changing it.
