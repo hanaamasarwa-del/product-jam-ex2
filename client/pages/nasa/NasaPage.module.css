@@ -1,0 +1,55 @@
+.page {
+  max-inline-size: var(--content-width);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block-end: var(--space-6);
+}
+
+.intro {
+  margin-block-start: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-8);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.problem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.problem p {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.empty {
+  color: var(--color-text-muted);
+}
+
+/* One column on a phone, more as the screen gets wider. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

@@ -16,6 +16,11 @@ export type Bindings = {
   /** The SECRET key (sb_secret_...). It bypasses all database rules.
    *  Never send this to the browser. Never put it in a VITE_ variable. */
   SUPABASE_SECRET_KEY: string;
+  /** Your NASA API key (https://api.nasa.gov). A secret: server only. */
+  NASA_API_KEY: string;
+  /** Your Gemini API key (https://aistudio.google.com/apikey). A secret:
+   *  server only. */
+  GEMINI_API_KEY: string;
 };
 
 /** Things our own middleware adds to the request, for handlers to read. */
