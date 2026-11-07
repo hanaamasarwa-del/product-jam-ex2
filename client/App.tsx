@@ -17,6 +17,7 @@ const EventNewPage = lazy(() => import("./pages/events/EventNewPage"));
 const EventDetailPage = lazy(() => import("./pages/events/EventDetailPage"));
 const EventEditPage = lazy(() => import("./pages/events/EventEditPage"));
 const DesignPage = lazy(() => import("./pages/design/DesignPage"));
+const TicTacToePage = lazy(() => import("./pages/tic-tac-toe/TicTacToePage"));
 const ComponentsPage = lazy(() => import("./pages/components/ComponentsPage"));
 const DemosPage = lazy(() => import("./pages/demos/DemosPage"));
 const BlankDemoPage = lazy(() => import("./pages/demos/BlankDemoPage"));
@@ -87,6 +88,10 @@ export function App() {
                         <Route
                           path="/events/:id/edit"
                           element={<EventEditPage />}
+                        />
+                        <Route
+                          path="/tic-tac-toe"
+                          element={<TicTacToePage />}
                         />
                       </Route>
 

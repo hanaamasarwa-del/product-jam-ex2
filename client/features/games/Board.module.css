@@ -1,0 +1,62 @@
+/* The board is a square that is as wide as it can be, up to a limit. */
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--size), 1fr);
+  gap: var(--space-2);
+  inline-size: min(100%, 26rem);
+  margin-inline: auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: var(--font-titles);
+  font-size: clamp(var(--text-xl), 9vw, var(--text-3xl));
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.cell:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-accent);
+}
+
+.cell:active:not(:disabled) {
+  background: var(--color-surface-active);
+}
+
+.cell:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* A cell that cannot be played any more. Keep its mark readable. */
+.cell:disabled {
+  cursor: default;
+}
+
+/* The two players differ by colour AND by letter, never colour alone. */
+.cell[data-player="X"] {
+  color: var(--color-accent);
+}
+
+.cell[data-player="O"] {
+  color: var(--color-text);
+}
+
+.cell[data-winning] {
+  background: var(--color-success-subtle);
+  border-color: var(--color-success);
+  border-width: 2px;
+}

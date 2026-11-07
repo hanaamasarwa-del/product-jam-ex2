@@ -1,0 +1,119 @@
+.page {
+  max-inline-size: var(--content-width-narrow);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.header {
+  margin-block-end: var(--space-6);
+}
+
+.rules {
+  margin-block-start: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-4);
+}
+
+.game > button {
+  align-self: center;
+}
+
+.status {
+  margin: 0;
+  font-family: var(--font-titles);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  text-align: center;
+}
+
+.status[data-over] {
+  color: var(--color-success);
+}
+
+/* Reserve a line so the board does not jump when the save message appears. */
+.saveStatus {
+  min-block-size: var(--space-8);
+  text-align: center;
+}
+
+.saveStatus p {
+  margin: 0;
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.saved {
+  color: var(--color-success);
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  border-radius: var(--radius-md);
+}
+
+.history {
+  margin-block-start: var(--space-8);
+}
+
+.history h2 {
+  margin-block-end: var(--space-4);
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-8);
+}
+
+.empty {
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.result {
+  font-size: var(--text-lg);
+}
+
+.moves {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Pushes the date to the far edge, whichever edge that is. */
+.date {
+  margin-inline-start: auto;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
