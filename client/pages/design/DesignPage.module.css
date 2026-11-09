@@ -729,7 +729,7 @@
  * ======================================================================== */
 @media (min-width: 40em) {
   .page {
-    --section-gap: 72px;
+    --section-gap: 88px;
     background:
       radial-gradient(70% 420px at 50% 0, rgb(255 255 255 / 0.16), transparent 72%), var(--blue);
   }
@@ -739,13 +739,12 @@
     padding: 88px 40px 80px;
   }
 
-  /* -- Hero: the introduction comes before the card (on a phone it is after) -- */
+  /* -- Hero: logo, player card, then the introduction - the phone's own order -- */
   .hero {
-    gap: 32px;
+    gap: 40px;
   }
 
   .logo {
-    order: 1;
     inset-inline-start: 0;
     inline-size: min(420px, 100%);
   }
@@ -755,7 +754,6 @@
   }
 
   .intro {
-    order: 2;
     inline-size: min(520px, 100%);
     margin: 0;
     font-size: 24px;
@@ -764,7 +762,6 @@
   }
 
   .player {
-    order: 3;
     inline-size: min(480px, 100%);
     max-inline-size: none;
     margin-block-start: 16px;
@@ -774,21 +771,22 @@
     box-shadow: var(--shadow-card);
   }
 
-  /* -- Patient and Dentist: each heading with its own card, stacked -- */
+  /* -- Patient and Dentist: side by side, like the phone, just bigger -- */
   .audiences {
-    display: flex;
-    flex-direction: column;
-    gap: 56px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 28px;
     /* Full width, so its edges line up with the panels above and below. */
     inline-size: 100%;
-    margin-block-start: var(--section-gap);
+    margin-block-start: calc(var(--section-gap) + 16px);
   }
 
   .audience {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 20px;
+    align-items: center;
+    gap: 24px;
   }
 
   .audience > * {
@@ -810,58 +808,46 @@
     margin-block-start: 6px;
   }
 
-  /* DESIGNER DECISION: a wide "landscape" card. The illustration sits on the
-     left; the label, title and text on the right; "Get started" along the
-     bottom. The phone's tall card would leave most of the row empty. All sizes
-     are fractions of the card's own width, so it works at any width. */
+  /* DESIGNER DECISION: the phone's own order (label, illustration, title,
+     text, "Get started"), just at a bigger, centred size - not the
+     side-by-side "landscape" card. The card is capped well short of the full
+     column so it keeps the phone's proportions instead of stretching thin. */
   .featureCard {
     grid-row: auto;
+    inline-size: 100%;
+    max-inline-size: 360px;
+    margin-inline: auto;
     border-radius: 24px;
     box-shadow: var(--shadow-card);
   }
 
   .featurePanel {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      "art label"
-      "art text";
-    align-content: center;
-    column-gap: clamp(20px, 5cqw, 36px);
-    row-gap: 6px;
-    padding: clamp(22px, 5cqw, 36px);
+    padding: 28px 28px 32px;
     border-radius: 24px;
   }
 
   .featureLabel {
-    grid-area: label;
-    align-self: end;
-    font-size: clamp(14px, 2.6cqw, 17px);
-    text-align: start;
+    font-size: clamp(15px, 4.2cqw, 18px);
   }
 
   .featureArt {
-    grid-area: art;
-    align-self: center;
-    inline-size: clamp(132px, 32cqw, 190px);
-    margin: 0;
+    inline-size: clamp(140px, 40cqw, 190px);
+    margin-block-start: 28px;
   }
 
   .featureText {
-    grid-area: text;
-    align-self: start;
-    inline-size: auto;
-    margin: 0;
+    inline-size: 84%;
+    margin-block-start: 28px;
   }
 
   .featureText h2 {
-    font-size: clamp(20px, 4.4cqw, 28px);
-    line-height: 1.15;
+    font-size: clamp(19px, 5.6cqw, 23px);
+    line-height: 1.2;
   }
 
   .featureText p {
     margin-block-start: 10px;
-    font-size: clamp(14px, 2.8cqw, 16px);
+    font-size: clamp(14px, 3.4cqw, 16px);
     line-height: 1.45;
   }
 
@@ -876,8 +862,8 @@
    * centred below them, and the curved line behind the lot, scaled to fit.
    */
   .story {
-    margin-block-start: var(--section-gap);
-    gap: 56px;
+    margin-block-start: calc(var(--section-gap) + 16px);
+    gap: calc(var(--section-gap) + 16px);
   }
 
   .story + .preview {
@@ -909,7 +895,7 @@
     font-size: clamp(56px, 8.5vw, 68px);
     /* The phone's tight spacing matches the PNG; a larger title needs room. */
     line-height: 1.2;
-    margin-block-end: 8px;
+    margin-block-end: 24px;
   }
 
   .specimenBody {
@@ -993,20 +979,14 @@
     display: none;
   }
 
-  /* -- Credits: a footer band -- */
+  /* -- Credits: a footer band, names centred above the tooth -- */
   .credits {
-    flex-direction: row-reverse;
-    justify-content: center;
-    gap: 20px;
+    gap: 16px;
     inline-size: 100%;
     margin-block-start: var(--section-gap);
     padding-block-start: 40px;
     border-block-start: 1px solid rgb(255 255 255 / 0.28);
     font-size: 15px;
-  }
-
-  .creditNames {
-    text-align: start;
   }
 
   .tooth {
@@ -1023,48 +1003,43 @@
  * ======================================================================== */
 @media (min-width: 64em) {
   .page {
-    --section-gap: 96px;
+    --section-gap: 136px;
   }
 
   .stage {
     max-inline-size: 70rem;
-    padding: 72px 48px 88px;
+    padding: 56px 48px 88px;
   }
 
+  /* DESIGNER DECISION: logo, then the player card, then the introduction -
+     three separate pieces (not one boxed-together panel). The three are
+     centred as a group in the first screenful (not pinned to the top), with
+     one even rhythm between them, so the player sits low in the fold and the
+     introduction starts right where the fold ends. */
   .hero {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "logo player"
-      "intro player";
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-items: center;
-    column-gap: clamp(32px, 5vw, 72px);
-    row-gap: 28px;
-    padding: clamp(40px, 5vw, 64px);
-    border: var(--panel-border);
-    border-radius: 36px;
-    background: var(--panel-bg);
-    box-shadow: var(--shadow-card);
+    justify-content: center;
+    gap: 72px;
+    min-block-size: 100vh;
   }
 
   .logo {
-    grid-area: logo;
-    align-self: end;
-  }
-
-  .intro {
-    grid-area: intro;
-    align-self: start;
-    font-size: clamp(22px, 2.2vw, 28px);
-    text-wrap: balance;
+    align-self: center;
+    inline-size: min(460px, 100%);
   }
 
   .player {
-    grid-area: player;
-    inline-size: 100%;
-    max-inline-size: 480px;
+    inline-size: min(640px, 100%);
+    max-inline-size: none;
     margin: 0;
+  }
+
+  .intro {
+    inline-size: min(640px, 100%);
+    font-size: clamp(22px, 2.2vw, 28px);
+    text-wrap: balance;
   }
 
   .audiences {
@@ -1078,35 +1053,14 @@
     font-size: 17px;
   }
 
+  /* A bit wider than the tablet's card - there is room for it here. */
   .featureCard {
     flex: 1;
+    max-inline-size: 440px;
   }
 
   .featurePanel {
     flex: 1;
-  }
-
-  /* DESIGNER DECISION: the English text over the Hebrew text on the left, the
-     circle on the right, and the curved line running behind both. */
-  .story {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    align-items: center;
-    gap: clamp(40px, 6vw, 96px);
-  }
-
-  /* Here the whole drawing fits behind the left column, so show all of it. */
-  .swirl {
-    inset: -4% auto auto 20%;
-    inline-size: auto;
-    block-size: 100%;
-    object-fit: contain;
-    mask-image: none;
-  }
-
-  .typographyNote {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 56px;
   }
 
   .specimenTitle,
@@ -1129,43 +1083,103 @@
 
 /* ======================================================================== *
  * LARGE DESKTOP (1440px and up). The same page held to a maximum width of
- * 1200px, so nothing drifts apart. The logo and introduction move back above
- * the player card, all centred, because there is room for a stronger top.
- * DESIGNER DECISION: all of it.
+ * 1200px, so nothing drifts apart. DESIGNER DECISION: one screenful, one
+ * element. Every piece - the logo, the player, the introduction, the two
+ * cards together, the typeface, the circle, the app preview, the credits -
+ * gets its own full screen height and sits centred inside it. Scrolling
+ * by one screen always lands on the next element centred, with nothing of
+ * the one before or after showing. The old between-section gaps
+ * (--section-gap and the margins built from it) are switched off here:
+ * the full screen height of empty space around each element already does
+ * that job, so adding the old gaps on top would just stack blank screens.
  * ======================================================================== */
 @media (min-width: 90em) {
   .page {
-    --section-gap: 112px;
+    /* Each element's screenful is a little shorter than the real viewport,
+       so the next element's edge always peeks in at the bottom - a hint to
+       keep scrolling, instead of a dead blank screen between elements. */
+    --fold: 90vh;
+    --fold-half: 45vh;
   }
 
   .stage {
     max-inline-size: 75rem;
-    padding: 80px 56px 96px;
+    padding: 0 56px 0;
   }
 
+  /* -- The logo's screenful, with the player's top edge peeking in at the
+     bottom of it to invite a scroll - then the player's own screenful
+     continues the usual rhythm from there. -- */
   .hero {
+    gap: 0;
+  }
+
+  /* 73px is half the logo's own rendered height (460px wide at its 121:382
+     ratio) - centres it with equal space above and below in the screen. */
+  .logo {
+    margin: 0;
+    margin-block-start: calc(var(--fold-half) - 73px);
+  }
+
+  /* 73px (half the logo) + 70px, so ~70px of the card's own top shows
+     above the fold instead of the full card. No space below it: the
+     introduction's own top margin (below) supplies that. */
+  .player {
+    inline-size: min(760px, 100%);
+    margin-block-start: calc(var(--fold-half) - 143px);
+    margin-inline: auto;
+  }
+
+  /* The introduction holds several runs of text (plain and bold), so it
+     can't become a flex box itself without breaking into one run per line -
+     centred with margins instead, sized to roughly half its own (three
+     line) height. */
+  .intro {
+    inline-size: min(680px, 100%);
+    font-size: 32px;
+    margin-block: calc(var(--fold-half) - 72px);
+    margin-inline: auto;
+  }
+
+  /* -- One fold for the two cards together -- */
+  .audiences {
+    min-block-size: var(--fold);
+    align-content: center;
+    margin-block-start: 0;
+  }
+
+  /* -- The typeface and the circle: each its own fold, not one group -- */
+  .story {
+    margin-block-start: 0;
+    gap: 0;
+  }
+
+  .typographyNote {
+    min-block-size: var(--fold);
+    align-content: center;
+  }
+
+  .privacyNote {
+    min-block-size: var(--fold);
+  }
+
+  .story + .preview {
+    margin-block-start: 0;
+  }
+
+  /* -- The app preview, its own fold -- */
+  .preview {
+    box-sizing: border-box;
+    min-block-size: var(--fold);
     display: flex;
     flex-direction: column;
-    gap: 32px;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
+    justify-content: center;
   }
 
-  .logo,
-  .intro {
-    align-self: center;
-  }
-
-  .intro {
-    inline-size: min(560px, 100%);
-    font-size: 28px;
-  }
-
-  .player {
-    inline-size: min(520px, 100%);
-    margin-block-start: 24px;
+  /* -- Credits, its own fold -- */
+  .credits {
+    min-block-size: var(--fold);
+    justify-content: center;
+    margin-block-start: 0;
   }
 }
