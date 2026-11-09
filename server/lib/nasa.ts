@@ -9,17 +9,18 @@ import { UpstreamError, callUpstream, readJson } from "./upstream";
 /*
  * Talking to NASA's Astronomy Picture of the Day (APOD).
  *
- * WHICH NASA API: the one the assignment names, api.nasa.gov/planetary/apod,
- * has been replaced by NASA's official WordPress endpoint (below). The old
- * one still answers, but with the same "NASA Science" logo for every date, so
- * it cannot be used. The new one needs no API key. See "What changed and why"
- * in docs/design.md.
+ * WHICH NASA API: NASA's official WordPress endpoint (below), which is the one
+ * the updated assignment names. It replaces api.nasa.gov/planetary/apod, which
+ * still answers but with the same "NASA Science" logo for every date, so it
+ * cannot be used. The new one needs no API key. See "What changed and why" in
+ * docs/design.md.
  *
- * What the new endpoint does NOT have, so we build it here:
- *   - No "give me N random pictures". It lists everything newest-first, so we
- *     pick random positions ourselves.
- *   - No "give me this date". Entries are about one per day, newest first, so a
- *     date's position is close to "days ago", and we walk from our guess.
+ * How we use it:
+ *   - Random pictures: the list has no "give me N random pictures", so we ask
+ *     how many entries exist (`X-WP-Total`) and then fetch single entries at
+ *     random `page` numbers with `per_page=1`.
+ *   - One date: the entry for a date is at the URL with the date appended as
+ *     YYMMDD, like .../apod-basic/240315. One request, no searching.
  *
  * NASA's answers are not ours, so every entry is checked with a Zod schema,
  * and cleaned into plain text, before anything uses it.
@@ -30,9 +31,6 @@ const APOD_URL = "https://science.nasa.gov/wp-json/wp/v2/apod-basic";
 /** The fields we use. The full entry also has a 6 KB copy of the web page. */
 const FIELDS =
   "date,title,explanation,media_type,hdurl,permalink,copyright,alt";
-
-/** NASA never gives more than this many entries per page. */
-const MAX_PER_PAGE = 25;
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -118,72 +116,58 @@ export async function fetchRandomPictures(
 
 export type PictureText = { title: string; explanation: string };
 
-const DAY_MS = 86_400_000;
+/** The first day APOD has a picture for. Nothing exists before it. */
+const FIRST_APOD_DATE = "1995-06-16";
 
-/** Whole days from `from` to `to`, both "YYYY-MM-DD". */
-function daysBetween(from: string, to: string): number {
-  return Math.round((Date.parse(to) - Date.parse(from)) / DAY_MS);
+/**
+ * "2024-03-15" to "240315", the form NASA wants at the end of the URL. Two
+ * digits are enough because the archive starts in 1995: 95 to 99 are the
+ * 1990s and 00 to 94 are the 2000s.
+ */
+function toYymmdd(date: string): string {
+  return date.slice(2).replaceAll("-", "");
 }
 
 /**
  * The title and explanation NASA has for one date, as plain text.
  *
- * Entries are newest-first and about one per day, with a handful of missing
- * days over 30 years. So "days since this date" is a close guess at the
- * position, off by a few. We fetch the page at the guess and look at its
- * dates: if ours is not there but the page is too new or too old, we jump the
- * right number of days and look again. A date that falls inside a page's range
- * and is still not there is a day NASA never published (404).
+ * It asks for that one entry directly: GET .../apod-basic/YYMMDD. NASA answers
+ * 404 for a date with no entry (in the future, or a day it never published), so
+ * that becomes `not_found`. The text is cleaned of HTML before it is returned,
+ * because it goes to Gemini and from there to the page.
  */
 export async function fetchPictureText(date: string): Promise<PictureText> {
-  const today = new Date().toISOString().slice(0, 10);
-  let position = Math.max(0, daysBetween(date, today));
-
-  // Three looks is plenty: the guess is off by at most about ten days.
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const page = Math.floor(position / MAX_PER_PAGE) + 1;
-    const { entries } = await fetchPage(MAX_PER_PAGE, page);
-
-    const parsed = entries.flatMap((item) => parseEntry(item) ?? []);
-    if (parsed.length === 0) {
-      // Past the end of the archive.
-      throw new UpstreamError("nasa", "not_found", "past the end");
-    }
-
-    const match = parsed.find((entry) => entry.date === date);
-    if (match) {
-      const text = entryText(match);
-      if (!text) {
-        throw new UpstreamError(
-          "nasa",
-          "invalid_response",
-          "entry has no text",
-        );
-      }
-      return text;
-    }
-
-    const newest = parsed[0]!.date;
-    const oldest = parsed[parsed.length - 1]!.date;
-    const pageStart = (page - 1) * MAX_PER_PAGE;
-    if (date > newest) {
-      // Newer than the very newest entry: NASA has not published it yet.
-      if (page === 1) {
-        throw new UpstreamError("nasa", "not_found", "not published yet");
-      }
-      // Our date is newer than this page: it is further up the list.
-      position = Math.max(0, pageStart - daysBetween(newest, date));
-    } else if (date < oldest) {
-      // A short page is the last one: nothing is older than this.
-      if (entries.length < MAX_PER_PAGE) {
-        throw new UpstreamError("nasa", "not_found", "before the archive");
-      }
-      // Our date is older than this page: further down.
-      position = pageStart + parsed.length - 1 + daysBetween(date, oldest);
-    } else {
-      // Inside this page's dates, but not in it: a day with no picture.
-      throw new UpstreamError("nasa", "not_found", "no entry for that date");
-    }
+  // Two-digit years would also match a date before 1995 (1990 looks like 2090),
+  // so a date before the archive is turned away here, without asking NASA.
+  if (date < FIRST_APOD_DATE) {
+    throw new UpstreamError("nasa", "not_found", "before the archive");
   }
-  throw new UpstreamError("nasa", "unavailable", "could not find the date");
+
+  const url = new URL(`${APOD_URL}/${toYymmdd(date)}`);
+  url.searchParams.set("_fields", FIELDS);
+
+  const response = await callUpstream("nasa", url, {}, REQUEST_TIMEOUT_MS);
+  if (response.status === 404) {
+    throw new UpstreamError("nasa", "not_found", "no entry for that date");
+  }
+  if (!response.ok) {
+    throw new UpstreamError("nasa", "unavailable", `status ${response.status}`);
+  }
+
+  const entry = parseEntry(await readJson("nasa", response));
+  // A single entry is an object, not a list. If it is something else, or it is
+  // for another day than the one we asked for, it is not what we can use.
+  if (!entry || entry.date !== date) {
+    throw new UpstreamError(
+      "nasa",
+      "invalid_response",
+      "not the entry asked for",
+    );
+  }
+
+  const text = entryText(entry);
+  if (!text) {
+    throw new UpstreamError("nasa", "invalid_response", "entry has no text");
+  }
+  return text;
 }

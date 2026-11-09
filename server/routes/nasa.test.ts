@@ -559,18 +559,18 @@ describe("POST /api/nasa/explanations: the happy path", () => {
     });
   });
 
-  it("fetches the text from NASA itself, finding the date the browser sent", async () => {
+  it("fetches the text from NASA itself, with one request for the date the browser sent", async () => {
     await explain({ date: DATE });
-    // NASA has no "this date" lookup, so the server pages to it: a few
-    // requests for 25 entries each, and no key.
-    expect(calls.nasa.length).toBeGreaterThanOrEqual(1);
-    expect(calls.nasa.length).toBeLessThanOrEqual(3);
-    for (const { url } of calls.nasa) {
-      expect(url.host).toBe("science.nasa.gov");
-      expect(url.searchParams.get("per_page")).toBe("25");
-      expect(url.search).not.toMatch(/api_key|key=/i);
-      expect(url.href).not.toContain(NASA_KEY);
-    }
+    // The entry for a date is at the URL with the date as YYMMDD. One request,
+    // and no key.
+    expect(calls.nasa).toHaveLength(1);
+    const { url } = calls.nasa[0]!;
+    expect(url.host).toBe("science.nasa.gov");
+    expect(url.pathname).toBe(
+      `/wp-json/wp/v2/apod-basic/${DATE.slice(2).replaceAll("-", "")}`,
+    );
+    expect(url.search).not.toMatch(/api_key|key=/i);
+    expect(url.href).not.toContain(NASA_KEY);
   });
 
   it("gives Gemini NASA's text, and ignores text sent by the browser", async () => {
@@ -853,8 +853,8 @@ describe("POST /api/nasa/explanations: when NASA fails", () => {
     expect((await explain({ date: "1995-06-17" })).status).toBe(404);
   });
 
-  it("answers 502 for any error status, rate limit or outage at NASA", async () => {
-    for (const nasaStatus of [403, 404, 429, 500, 503]) {
+  it("answers 502 for any error status, rate limit or outage at NASA (404 is different: it means no picture for that date)", async () => {
+    for (const nasaStatus of [400, 403, 429, 500, 503]) {
       mocks.nasa = () => new Response("nope", { status: nasaStatus });
       const { status, body } = await explain({ date: DATE });
       expect(status, String(nasaStatus)).toBe(502);

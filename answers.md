@@ -263,13 +263,17 @@ page showed them normally:
 
 ![The NASA page with a wrong NASA_API_KEY: it still works](screenshots/q5-wrongkey-page.png)
 
-This is because my server no longer uses `NASA_API_KEY`. The old NASA address
-from the assignment (`api.nasa.gov/planetary/apod`) answered with the same "NASA
-Science" logo for every date, so I switched to NASA's official WordPress
-endpoint (`science.nasa.gov/wp-json/wp/v2/apod-basic`), which needs no key. The
-variable is still declared in `server/env.ts`, but no code reads it. So the test
-from the assignment **can't** show an error with my code. (The key that is still
-used is `GEMINI_API_KEY`.)
+This is because my server doesn't use `NASA_API_KEY` any more. The updated
+assignment (changed on 8 November) tells us to use NASA's official WordPress
+endpoint, `science.nasa.gov/wp-json/wp/v2/apod-basic`, instead of
+`api.nasa.gov/planetary/apod`, and the new endpoint needs no key. (I had also
+seen that the old address answered with the same "NASA Science" logo for every
+date, so it could not show real pictures.) The variable is still declared in
+`server/env.ts`, but no code reads it. So the test from the assignment **can't**
+show an error with my code. (The key that is still used is `GEMINI_API_KEY`.)
+Both tests below were done before the small change described at the end of this
+answer, and they used the random pictures request, which that change did not
+touch.
 
 **Test 2: my own, to make NASA really fail.** I put `.env` back, and then
 changed the NASA address in `server/lib/nasa.ts` for a few minutes to a host
@@ -302,6 +306,16 @@ the same kind of answer from my server, with a message that a person can read,
 and the key never appears in an answer. I didn't test a case where NASA itself
 answers with an error code (like 403 or 500). From the code, that is also turned
 into a 502 (`status 403` becomes `unavailable`), but I didn't see it happen.
+
+**A change after these tests.** When the assignment was updated, I also changed
+how the server gets the text of one picture for the Hebrew explanation
+(`POST /api/nasa/explanations`). It now asks NASA for that one date directly,
+with the date at the end of the address as `YYMMDD`, instead of searching
+through pages. This changes how a NASA `404` for that request is handled: it
+means "no picture for that date", so my server answers `404` and not `502`. I
+have not repeated the screenshots above for it. The unit tests cover it, and I
+ran a real request for a day NASA never published (2020-06-10), which answered
+404 `"NASA has no picture for that date."`
 
 ## 6. Who wrote the text?
 

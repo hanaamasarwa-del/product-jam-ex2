@@ -12,7 +12,7 @@ import { UpstreamError } from "./upstream";
 /*
  * The adapter between NASA's official APOD endpoint and our app. NASA is
  * faked (see server/test-support/fakeNasa.ts), but it pages the way the real
- * one does, so the random picking and the date search are tested for real.
+ * one does, so the random picking and the one-date lookup are tested for real.
  */
 
 let archive: FakeEntry[];
@@ -187,28 +187,45 @@ describe("fetchRandomPictures", () => {
 });
 
 describe("fetchPictureText", () => {
-  it("finds today's picture", async () => {
-    const date = archive[0]!.date;
-    expect(await fetchPictureText(date)).toEqual({
-      title: `Picture of ${date}`,
-      explanation: `NASA's description of the picture from ${date}.`,
-    });
+  it("asks for one entry, at the URL with the date as YYMMDD", async () => {
+    await fetchPictureText("2024-03-15");
+    expect(nasa.requests).toHaveLength(1);
+    const { url, code } = nasa.requests[0]!;
+    expect(code).toBe("240315");
+    expect(url.pathname).toBe("/wp-json/wp/v2/apod-basic/240315");
   });
 
-  it("finds a date from 2024 and cleans the text", async () => {
-    expect(await fetchPictureText("2024-03-15")).toEqual({
+  it("writes the year, month and day with two digits each", async () => {
+    for (const [date, code] of [
+      ["2000-01-02", "000102"],
+      ["1995-06-16", "950616"],
+      ["2009-12-31", "091231"],
+      ["1999-09-09", "990909"],
+    ] as const) {
+      nasa.requests.length = 0;
+      await fetchPictureText(date);
+      expect(nasa.requests[0]!.code, date).toBe(code);
+    }
+  });
+
+  it("returns the title and explanation as plain text, with no HTML", async () => {
+    const text = await fetchPictureText("2024-03-15");
+    expect(text).toEqual({
       title: "Picture of 2024-03-15",
       explanation: "NASA's description of the picture from 2024-03-15.",
     });
+    expect(JSON.stringify(text)).not.toMatch(/<|&amp;|Explanation:|Tomorrow/);
     expect(await fetchPictureText("2024-03-11")).toMatchObject({
       title: "HFG1 & Abell 6: Planetary Nebulae",
     });
   });
 
-  it("finds the very first picture", async () => {
-    expect(await fetchPictureText("1995-06-16")).toMatchObject({
-      title: "Picture of 1995-06-16",
-    });
+  it("finds today's picture and the very first one", async () => {
+    const today = archive[0]!.date;
+    expect((await fetchPictureText(today)).title).toBe(`Picture of ${today}`);
+    expect((await fetchPictureText("1995-06-16")).title).toBe(
+      "Picture of 1995-06-16",
+    );
   });
 
   it("finds videos and interactive entries too, since only the words matter", async () => {
@@ -220,20 +237,7 @@ describe("fetchPictureText", () => {
     );
   });
 
-  it("finds dates on both sides of a missing day", async () => {
-    for (const date of [
-      "2020-06-09",
-      "2020-06-11",
-      "2000-07-01",
-      "2000-06-29",
-    ]) {
-      expect((await fetchPictureText(date)).title, date).toBe(
-        `Picture of ${date}`,
-      );
-    }
-  });
-
-  it("finds the right picture for dates all across the archive, in at most 3 requests", async () => {
+  it("finds dates all across the archive with exactly one request each", async () => {
     const dates = archive
       .filter((_, index) => index % 61 === 0)
       .map((entry) => entry.date);
@@ -243,24 +247,16 @@ describe("fetchPictureText", () => {
       expect((await fetchPictureText(date)).title, date).toBe(
         `Picture of ${date}`,
       );
-      expect(nasa.requests.length, date).toBeLessThanOrEqual(3);
+      expect(nasa.requests.length, date).toBe(1);
     }
   });
 
-  it("usually needs only one request", async () => {
-    nasa.requests.length = 0;
+  it("sends no API key, and asks only for the fields it uses", async () => {
     await fetchPictureText("2024-03-15");
-    expect(nasa.requests.length).toBeLessThanOrEqual(2);
-  });
-
-  it("sends no API key, and asks for 25 entries of only the fields it uses", async () => {
-    await fetchPictureText("2024-03-15");
-    for (const { url, perPage, fields } of nasa.requests) {
-      expect(url.search).not.toMatch(/api_key|key=/i);
-      expect(perPage).toBe(25);
-      expect(fields).toContain("explanation");
-      expect(fields).not.toContain("basic_html");
-    }
+    const { url, fields } = nasa.requests[0]!;
+    expect(url.search).not.toMatch(/api_key|key=/i);
+    expect(fields).toContain("explanation");
+    expect(fields).not.toContain("basic_html");
   });
 
   it("says not_found for a day NASA never published", async () => {
@@ -278,7 +274,7 @@ describe("fetchPictureText", () => {
     }
   });
 
-  it("says not_found for a day after the newest entry", async () => {
+  it("says not_found for a day in the future", async () => {
     const tomorrow = new Date(Date.now() + 86_400_000)
       .toISOString()
       .slice(0, 10);
@@ -287,31 +283,22 @@ describe("fetchPictureText", () => {
     });
   });
 
-  it("says not_found for a date before the archive starts", async () => {
-    expect(await failure(fetchPictureText("1995-06-15"))).toMatchObject({
-      kind: "not_found",
+  it("says not_found for a date before the archive, without asking NASA", async () => {
+    for (const date of ["1995-06-15", "1990-01-01", "1899-12-31"]) {
+      nasa.requests.length = 0;
+      expect(await failure(fetchPictureText(date)), date).toMatchObject({
+        kind: "not_found",
+      });
+      expect(nasa.requests, date).toHaveLength(0);
+    }
+  });
+
+  it("does not accept an entry for another day than the one asked for", async () => {
+    globalThis.fetch = (async () =>
+      Response.json(makeEntry("2024-03-16"))) as typeof fetch;
+    expect(await failure(fetchPictureText("2024-03-15"))).toMatchObject({
+      kind: "invalid_response",
     });
-  });
-
-  it("uses the first entry when a date appears twice", async () => {
-    const date = "2022-02-02";
-    const index = archive.findIndex((entry) => entry.date === date);
-    const copy = makeEntry(date, { title: "The duplicate" });
-    serve([...archive.slice(0, index + 1), copy, ...archive.slice(index + 1)]);
-    expect((await fetchPictureText(date)).title).toBe(`Picture of ${date}`);
-  });
-
-  it("skips junk in a page and still finds the date", async () => {
-    const date = "2024-03-15";
-    const index = archive.findIndex((entry) => entry.date === date);
-    const junk = { nope: true } as unknown as FakeEntry;
-    serve([
-      ...archive.slice(0, index),
-      junk,
-      archive[index]!,
-      ...archive.slice(index + 1),
-    ]);
-    expect((await fetchPictureText(date)).title).toBe(`Picture of ${date}`);
   });
 
   it("fails when the entry has no usable text", async () => {
@@ -332,6 +319,14 @@ describe("fetchPictureText", () => {
       kind: "unavailable",
     });
 
+    // NASA answering 400 for a date it does not understand is a failure too,
+    // not "no picture".
+    globalThis.fetch = (async () =>
+      new Response("{}", { status: 400 })) as typeof fetch;
+    expect(await failure(fetchPictureText("2024-03-15"))).toMatchObject({
+      kind: "unavailable",
+    });
+
     globalThis.fetch = (async () => {
       throw new DOMException("too slow", "TimeoutError");
     }) as typeof fetch;
@@ -346,7 +341,7 @@ describe("fetchPictureText", () => {
     });
 
     globalThis.fetch = (async () =>
-      Response.json({ not: "a list" })) as typeof fetch;
+      Response.json([makeEntry("2024-03-15")])) as typeof fetch;
     expect(await failure(fetchPictureText("2024-03-15"))).toMatchObject({
       kind: "invalid_response",
     });

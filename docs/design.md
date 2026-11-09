@@ -213,3 +213,102 @@ requests would call Gemini and one answer would be thrown away.
   second takeover fixes that, but it is one more rule to get right, and a very
   slow Gemini call (over 60 seconds) could be taken over while still running.
   The 25 second Gemini limit keeps that from happening.
+
+## What changed and why
+
+The plan above was written before any code. This is what is different in what I
+built, and why. Everything not listed here was built as planned (the two tables,
+the `games` API, the shared explanation per date with its lock, and the error
+codes).
+
+### The NASA API changed (the biggest change)
+
+- **Plan:** call `https://api.nasa.gov/planetary/apod?count=N` with
+  `NASA_API_KEY`.
+- **Built:** call NASA's official WordPress endpoint,
+  `https://science.nasa.gov/wp-json/wp/v2/apod-basic`. It needs no API key.
+- **Why:** the updated assignment (changed on November 8) tells us to use this
+  endpoint instead of `api.nasa.gov/planetary/apod`. I had already found the
+  same problem while building: the old endpoint answered with the same "NASA
+  Science" logo for every date, so it could not show real pictures. The new one
+  returns the real ones.
+- **What follows from it:** `NASA_API_KEY` is not used by any code now. It is
+  still declared in `server/env.ts` (and set as a secret), but nothing reads it,
+  so a wrong key changes nothing. The only key left is `GEMINI_API_KEY`. This is
+  also why the wrong-key test in Question 5 of `answers.md` cannot make NASA
+  fail.
+
+### Random pictures (`GET /api/nasa/pictures`)
+
+- **Plan:** NASA picks the random pictures (`count=N`).
+- **Built:** the new endpoint has no "random". It lists every entry, newest
+  first, and says how many there are in the `X-WP-Total` header. So the server
+  asks for one entry (`per_page=1`) to read that total, then asks for up to 20
+  single entries at different random `page` numbers, all at the same time.
+- **Because of that:** if some of those requests fail, the pictures that did
+  arrive are still shown. Only if all of them fail does the user get a `502` or
+  `504`. Entries that cannot be shown are left out (see the next two points),
+  and a date is only used once, so fewer than 20 pictures can come back.
+
+### One date (`POST /api/nasa/explanations`)
+
+- **Plan:** "fetch the title and text from NASA" for the date.
+- **Built:** one request to the URL with the date at the end as `YYMMDD`, for
+  example `.../apod-basic/240315` for 15 March 2024. NASA answers `404` for a
+  date with no entry (a day it never published, or one in the future), and my
+  server turns that into its own `404 not_found`.
+- **How I got there:** I first wrote a search that guessed a page from the
+  number of days since the date and walked to it, because I had not found a way
+  to ask for one date. The updated assignment shows the `YYMMDD` URL, which is
+  one request instead of up to three, so I replaced the search with it.
+- **Two small checks:** a date before 1995-06-16 is turned away without asking
+  NASA, because with only two digits for the year 1990 would look like 2090. And
+  the entry that comes back must be for the date I asked for.
+
+### The picture URL and the shape of a picture
+
+- In NASA's entries, `url` is the address of the **article page**, and `hdurl`
+  is the **picture**. So the picture's `url` in my API is NASA's `hdurl`.
+- **Plan:**
+  `{ date, title, explanation, media_type, url, hdurl?, thumbnail_url?, copyright?, hebrew }`.
+- **Built:**
+  `{ date, title, explanation, media_type, url, link?, copyright?, alt?, hebrew }`.
+  `url` is the picture, `link` is the NASA article page (only if it is an
+  `https` link on nasa.gov), and `alt` is NASA's description for people who
+  cannot see the picture. `hdurl` and `thumbnail_url` are gone, because there is
+  no longer a separate thumbnail. An entry with no `hdurl` is not shown.
+
+### HTML is cleaned
+
+NASA's titles, explanations and credits are HTML (for example
+`<strong>Explanation:</strong> A <a href=...>galaxy</a> &amp; ...`). The server
+turns them into plain text **before** the text is shown or sent to Gemini: tags
+removed, entities such as `&amp;` decoded, and the leading "Explanation:" label
+and the "Tomorrow's picture" line at the end removed. This is so Gemini reads
+words and not markup, and so the browser is never given HTML from another server
+to display. NASA's `iframe` entries are treated as videos, and entries with no
+picture (like interactive pages) are left out.
+
+### Gemini
+
+- **Plan:** it did not name a model.
+- **Built:** the Gemini REST API with plain `fetch`, structured JSON output, and
+  a Zod check of the answer. The model is `gemini-3.6-flash`, one of the two
+  models the updated assignment allows (the other is `gemini-3.5-flash-lite`). I
+  checked on 9 November 2026 that both are available with my key for
+  `generateContent`, so I did not change it.
+- **Two additions after trying it for real:**
+  - Thinking is set to `minimal`. By default the model "thinks" first, which
+    took about 7 seconds and sometimes more than the 25 second limit. Without it
+    the same answer takes a few seconds.
+  - The Zod schema also rejects a Hebrew word with English letters stuck to it.
+    This happened once in about fourteen real answers.
+
+### The lock only lets its owner change the row
+
+- **Plan:** the final `update` (step 6) and the cleanup `delete` (step 7) look
+  for the row by `date`.
+- **Built:** they also require that `claimed_at` is the exact time **this
+  request** wrote when it claimed the date. So a request that was slow and had
+  its date taken over after 60 seconds cannot overwrite, or delete, the new
+  owner's row.

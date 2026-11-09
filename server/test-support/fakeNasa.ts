@@ -10,6 +10,8 @@
  *   - a page past the end is an empty list
  *   - title / explanation / copyright are HTML, `url` is the ARTICLE page and
  *     `hdurl` is the picture
+ *   - one entry at `.../apod-basic/YYMMDD`: an object, 404 `apod_basic_not_found`
+ *     for a day with no entry (or in the future), 400 for a date that is not real
  * and it ignores everything else (date, count, orderby...), as the real one does.
  */
 
@@ -74,6 +76,8 @@ export function makeArchive(
 /** What one request to the fake looked like. */
 export type FakeRequest = {
   url: URL;
+  /** The YYMMDD at the end of the URL, for a one-entry request. */
+  code: string | null;
   perPage: number;
   page: number;
   fields: string[] | null;
@@ -86,14 +90,52 @@ export type FakeRequest = {
 export function fakeNasa(entries: FakeEntry[]) {
   const requests: FakeRequest[] = [];
 
+  const handleOne = (url: URL, code: string, fields: string[] | null) => {
+    requests.push({ url, code, perPage: 0, page: 0, fields });
+    const year = Number(code.slice(0, 2));
+    const date = `${year >= 95 ? 1900 + year : 2000 + year}-${code.slice(2, 4)}-${code.slice(4, 6)}`;
+    const real = new Date(`${date}T00:00:00Z`);
+    if (
+      Number.isNaN(real.getTime()) ||
+      real.toISOString().slice(0, 10) !== date
+    ) {
+      return Response.json(
+        { code: "rest_invalid_param", message: "Invalid parameter(s): date" },
+        { status: 400 },
+      );
+    }
+    const entry = entries.find((item) => item.date === date);
+    if (!entry) {
+      return Response.json(
+        { code: "apod_basic_not_found", message: "APOD not found." },
+        { status: 404 },
+      );
+    }
+    return Response.json(
+      fields
+        ? Object.fromEntries(
+            Object.entries(entry).filter(([key]) => fields.includes(key)),
+          )
+        : entry,
+    );
+  };
+
   const handle = (url: URL): Response => {
+    const one = url.pathname.match(/\/apod-basic\/(\d{6})$/);
+    if (one) {
+      return handleOne(
+        url,
+        one[1]!,
+        url.searchParams.get("_fields")?.split(",") ?? null,
+      );
+    }
     const perPage = Math.min(
       25,
       Number(url.searchParams.get("per_page") ?? 25),
     );
     const page = Number(url.searchParams.get("page") ?? 1);
     const fields = url.searchParams.get("_fields")?.split(",") ?? null;
-    requests.push({ url, perPage, page, fields });
+    requests.push({ url, code: null, perPage, page, fields });
 
     const slice = entries
       .slice((page - 1) * perPage, page * perPage)
